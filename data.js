@@ -112,17 +112,17 @@
   // Soort 'code': een nummer dat je kunt intoetsen. Soort 'plaat': een bijzonder kentekentype.
   const BONUS = [
     { code: '20', soort: 'code', naam: 'Oud Corsica (20)', toelichting: 'Corsica had nummer 20 tot de splitsing in 2A en 2B in 1976. Alleen nog te zien op heel oude kentekens (oldtimers).' },
-    { code: '975', soort: 'code', naam: 'Saint-Pierre-et-Miquelon', toelichting: 'Overzees gebied bij Canada met een eigen kentekensysteem. Zeer zeldzaam in Europa.' },
-    { code: '977', soort: 'code', naam: 'Saint-Barthélemy', toelichting: 'Caraïbisch overzees gebied. Zeer zeldzaam.' },
-    { code: '978', soort: 'code', naam: 'Saint-Martin', toelichting: 'Frans deel van het eiland Sint-Maarten. Zeer zeldzaam.' },
-    { code: '986', soort: 'code', naam: 'Wallis-et-Futuna', toelichting: 'Eilanden in de Stille Oceaan met een eigen kentekensysteem.' },
-    { code: '987', soort: 'code', naam: 'Polynésie française', toelichting: 'Tahiti en omliggende eilanden, eigen kentekensysteem.' },
-    { code: '988', soort: 'code', naam: 'Nouvelle-Calédonie', toelichting: 'Eigen kentekensysteem. Een auto hiervan in Frankrijk is een topvondst.' },
-    { code: 'TT', soort: 'plaat', naam: 'Rode TT-plaat', toelichting: 'Transit Temporaire: rood kenteken met witte tekens en een vervaldatum. Voor auto\'s die (belastingvrij) worden geëxporteerd.' },
-    { code: 'CD', soort: 'plaat', naam: 'Groene diplomatenplaat', toelichting: 'Groene plaat met oranje of witte tekens (CD, C, K). Het eerste nummer staat voor het land of de organisatie.' },
-    { code: 'W', soort: 'plaat', naam: 'W garage', toelichting: 'Handelaarskenteken van een garage of dealer, begint met W.' },
-    { code: 'WW', soort: 'plaat', naam: 'WW tijdelijk', toelichting: 'Tijdelijk kenteken, bijvoorbeeld bij import, in afwachting van een definitieve inschrijving.' },
-    { code: 'ZWART', soort: 'plaat', naam: 'Zwarte oldtimerplaat', toelichting: 'Zwart met zilveren of witte tekens: toegestaan voor oldtimers met een collectiekenteken.' },
+    { code: '975', soort: 'code', naam: 'Saint-Pierre-et-Miquelon', toelichting: 'Overzees gebied bij Canada met een eigen kentekensysteem: de plaat begint met SPM (bv. SPM 123 A). Het nummer 975 staat er niet op. Zeer zeldzaam in Europa.' },
+    { code: '977', soort: 'code', naam: 'Saint-Barthélemy', toelichting: 'Caraïbisch eiland met een eigen kentekensysteem: het wapen van het eiland, dan 1 tot 3 cijfers en 1 tot 3 letters. Het nummer 977 staat er niet op. Zeer zeldzaam.' },
+    { code: '978', soort: 'code', naam: 'Saint-Martin', toelichting: 'Frans deel van het eiland Sint-Maarten, met een eigen kentekensysteem: vier cijfers, een streepje en drie letters (bv. 1234-ABC). Het nummer 978 staat er niet op. Zeer zeldzaam.' },
+    { code: '986', soort: 'code', naam: 'Wallis-et-Futuna', toelichting: 'Eilanden in de Stille Oceaan met een eigen kentekensysteem: 1 tot 5 cijfers en dan WF (bv. 1234 WF). Het nummer 986 staat er niet op.' },
+    { code: '987', soort: 'code', naam: 'Polynésie française', toelichting: 'Tahiti en omliggende eilanden, met een eigen kentekensysteem: 1 tot 6 cijfers en dan de letter P (bv. 123456 P). Het nummer 987 staat er niet op.' },
+    { code: '988', soort: 'code', naam: 'Nouvelle-Calédonie', toelichting: 'Eigen kentekensysteem: 1 tot 6 cijfers en dan NC (bv. 123456 NC). Het nummer 988 staat er niet op. Een auto hiervan in Frankrijk is een topvondst.' },
+    { code: 'TT', soort: 'plaat', naam: 'Rode TT-plaat', toelichting: 'Transit Temporaire: witte tekens op een rode plaat, met een gewoon nummer (bv. AB-123-CD) en rechts de vervaldatum (maand/jaar) in plaats van een departement. Voor auto\'s die tijdelijk in Frankrijk rijden of worden uitgevoerd.' },
+    { code: 'CD', soort: 'plaat', naam: 'Groene diplomatenplaat', toelichting: 'Groene plaat met oranje tekens (CD, CMD) of witte tekens (C, K). Het eerste nummer staat voor het land of de organisatie.' },
+    { code: 'W', soort: 'plaat', naam: 'W garage', toelichting: 'Handelaarskenteken van een garage of dealer: W-123-AB. Sinds 2026 zwarte tekens op een roze plaat; oudere W-platen kunnen nog wit zijn.' },
+    { code: 'WW', soort: 'plaat', naam: 'WW tijdelijk', toelichting: 'Tijdelijk kenteken (WW-123-AB), bijvoorbeeld bij import, in afwachting van de definitieve inschrijving. Sinds 2026 zwart op roze, met rechts de vervaldatum in plaats van een departement.' },
+    { code: 'ZWART', soort: 'plaat', naam: 'Zwarte oldtimerplaat', toelichting: 'Witte tekens op een zwarte plaat: toegestaan voor oldtimers met een collectiekenteken.' },
     { code: 'FNI', soort: 'plaat', naam: 'Oud FNI-kenteken', toelichting: 'Kenteken van vóór 2009 in de vorm 1234 AB 56. Het laatste getal was het departement waar de auto stond ingeschreven.' },
     { code: 'MIL', soort: 'plaat', naam: 'Legervoertuig', toelichting: 'Franse vlag op de plaat, alleen cijfers, geen departement.' }
   ];

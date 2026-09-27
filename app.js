@@ -785,8 +785,10 @@
   // midden in het spel de pagina herlaadt.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     let herladen = false;
+    // Bij het allereerste bezoek neemt de service worker de pagina ook over; dan niet herladen.
+    const hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (herladen) return;
+      if (herladen || !hadController) return;
       herladen = true;
       location.reload();
     });
