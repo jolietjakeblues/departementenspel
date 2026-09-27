@@ -1,0 +1,12 @@
+{
+  "name": "Departementenspel",
+  "short_name": "Departementen",
+  "description": "Spot Franse kentekens, vind alle departementen en speel bingo onderweg.",
+  "lang": "nl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#002654",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

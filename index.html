@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#002654">
+  <title>Departementenspel</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Departementenspel</h1>
+      <div class="ondertitel">Le jeu des départements</div>
+    </div>
+    <div id="reisStatus" class="reis-status"></div>
+  </header>
+
+  <main class="na-kop">
+    <!-- SPEL -->
+    <section id="view-spel" class="view active" aria-label="Spel">
+      <div id="startBlok" class="card center">
+        <div class="bienvenue">Bienvenue en France</div>
+        <p class="groot">Rij je Frankrijk in?</p>
+        <button id="btnStart" class="btn primary big">Start reis</button>
+        <p class="muted">De reis stopt als je Frankrijk weer uit rijdt.</p>
+      </div>
+
+      <div id="invoerBlok" class="card hidden">
+        <div class="invoer-regel">
+          <output id="invoer" class="invoer" aria-live="polite">&nbsp;</output>
+          <div id="invoerNaam" class="invoer-naam muted">Toets het nummer van het kenteken</div>
+        </div>
+        <div class="keypad" id="keypad">
+          <button>1</button><button>2</button><button>3</button><button>A</button>
+          <button>4</button><button>5</button><button>6</button><button>B</button>
+          <button>7</button><button>8</button><button>9</button><button data-k="del" aria-label="Wissen">⌫</button>
+          <button data-k="bonus" class="klein">Bijzonder</button><button>0</button><button data-k="ok" class="primary wide">Gevonden!</button>
+        </div>
+      </div>
+
+      <div class="voortgang card">
+        <div class="voortgang-tekst"><strong id="telling">0 / 101</strong> <span class="muted" id="tellingSub"></span></div>
+        <div class="balk"><div id="balk" style="width:0%"></div></div>
+      </div>
+
+      <div id="tabel" class="tabel" aria-label="Alle departementen"></div>
+
+      <h2 class="kop">Bijzondere vondsten</h2>
+      <div id="bonus" class="bonus"></div>
+
+      <div id="stopBlok" class="center hidden">
+        <button id="btnStop" class="btn danger">Ik rij Frankrijk uit, stop reis</button>
+      </div>
+    </section>
+
+    <!-- KAART -->
+    <section id="view-kaart" class="view" aria-label="Kaart">
+      <div class="card kaart-card">
+        <svg id="kaart" class="kaart" role="img" aria-label="Kaart van Frankrijk met gevonden departementen"></svg>
+        <div id="overzee" class="overzee"></div>
+        <div id="idf" class="idf"></div>
+        <p class="muted klein-tekst">Tik op een departement voor informatie. Kaartgrenzen: france-geojson (Grégoire David, open licentie), vereenvoudigd.</p>
+      </div>
+    </section>
+
+    <!-- BINGO -->
+    <section id="view-bingo" class="view" aria-label="Bingo">
+      <div id="bingoNieuw" class="card">
+        <h2>Nieuwe bingokaart</h2>
+        <p class="muted">Iedereen maakt een eigen kaart op de eigen telefoon. Wordt er een nummer geroepen, dan mag iedereen die het op de kaart heeft het afstrepen. Alleen departementen van het vasteland en Corsica doen mee, in een mix van vaak, gemiddeld en zelden geziene nummers.</p>
+        <label class="veld">Aantal vakjes
+          <select id="bingoGrootte">
+            <option value="12">12 (3 × 4)</option>
+            <option value="16" selected>16 (4 × 4)</option>
+            <option value="20">20 (4 × 5)</option>
+          </select>
+        </label>
+        <button id="btnBingoNieuw" class="btn primary">Maak kaart</button>
+        <details>
+          <summary>Kaart met een code maken</summary>
+          <p class="muted">Dezelfde code en grootte geven dezelfde kaart. Handig om na te kijken of om een kaart terug te halen.</p>
+          <label class="veld">Code <input id="bingoCode" maxlength="12" autocapitalize="characters" autocomplete="off"></label>
+          <button id="btnBingoCode" class="btn">Maak kaart met code</button>
+        </details>
+      </div>
+      <div id="bingoSpel" class="hidden">
+        <div class="card">
+          <div class="bingo-kop">
+            <span>Kaart <strong id="bingoCodeToon"></strong></span>
+            <span id="bingoTelling" class="muted"></span>
+          </div>
+          <div id="bingoMelding" class="bingo-melding hidden"></div>
+          <form id="bingoRoep" class="bingo-roep" autocomplete="off">
+            <label for="bingoRoepInvoer">Geroepen nummer</label>
+            <input id="bingoRoepInvoer" maxlength="3" autocapitalize="characters" inputmode="text" placeholder="13">
+            <button class="btn primary" type="submit">Streep af</button>
+          </form>
+          <div id="bingoGrid" class="bingo-grid"></div>
+          <p class="muted klein-tekst">Tik op een vakje of vul het geroepen nummer in. Nog een keer tikken maakt het ongedaan.</p>
+        </div>
+        <div class="center"><button id="btnBingoStop" class="btn">Andere kaart</button></div>
+      </div>
+    </section>
+
+    <!-- STATISTIEKEN -->
+    <section id="view-stats" class="view" aria-label="Statistieken">
+      <div id="stats"></div>
+    </section>
+
+    <!-- KENTEKENS -->
+    <section id="view-kentekens" class="view" aria-label="Kentekens">
+      <div id="kentekenInfo"></div>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="Navigatie">
+    <button data-view="spel" class="active"><span>🔢</span>Spel</button>
+    <button data-view="kaart"><span>🗺️</span>Kaart</button>
+    <button data-view="bingo"><span>🎯</span>Bingo</button>
+    <button data-view="stats"><span>📊</span>Statistiek</button>
+    <button data-view="kentekens"><span>🚗</span>Kentekens</button>
+  </nav>
+
+  <div id="sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sheetTitel">
+    <div class="sheet-inner">
+      <button class="sheet-close" id="sheetClose" aria-label="Sluiten">✕</button>
+      <div class="sheet-code" id="sheetCode"></div>
+      <h2 id="sheetTitel"></h2>
+      <dl id="sheetMeta" class="meta"></dl>
+      <p id="sheetTekst"></p>
+      <p id="sheetGevonden" class="muted"></p>
+      <button id="sheetToggle" class="btn primary"></button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+  <script src="kentekens.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
