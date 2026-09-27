@@ -224,13 +224,20 @@
   }
 
   const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
-  const tijdMap = v => isObj(v)
-    ? Object.fromEntries(Object.entries(v).filter(([, t]) => typeof t === 'number' && isFinite(t)))
+  // Alleen bekende codes worden overgenomen: een onbekende code in een (gemanipuleerd) bestand
+  // zou anders schermen laten vastlopen die de naam van het departement opzoeken.
+  const METRO_CODES = new Set(METRO.map(d => d.code));
+  const isDep = c => BY_CODE.has(c);
+  const isBonus = c => BONUS_BY_CODE.has(c);
+  const isVondst = c => isDep(c) || isBonus(c);
+  const tijdMap = (v, mag) => isObj(v)
+    ? Object.fromEntries(Object.entries(v).filter(([c, t]) => mag(c) && typeof t === 'number' && isFinite(t)))
     : {};
-  const tekstMap = v => isObj(v)
-    ? Object.fromEntries(Object.entries(v).filter(([, t]) => typeof t === 'string'))
+  const tekstMap = (v, mag) => isObj(v)
+    ? Object.fromEntries(Object.entries(v).filter(([c, t]) => mag(c) && typeof t === 'string'))
     : {};
-  const tekstLijst = v => Array.isArray(v) ? v.filter(x => typeof x === 'string') : [];
+  const codeLijst = v => Array.isArray(v) ? [...new Set(v.filter(x => METRO_CODES.has(x)))] : [];
+  const kort = (s, n) => String(s).slice(0, n);
 
   // Controleert een ingelezen back-up en geeft een schone state terug. Gooit een fout als het
   // bestand niet van deze app is, zodat een verkeerd bestand de huidige gegevens niet overschrijft.
@@ -245,19 +252,19 @@
         id: r.id,
         start: r.start,
         eind: typeof r.eind === 'number' ? r.eind : null,
-        vondsten: tijdMap(r.vondsten),
-        bonus: tijdMap(r.bonus),
-        door: tekstMap(r.door)
+        vondsten: tijdMap(r.vondsten, isDep),
+        bonus: tijdMap(r.bonus, isBonus),
+        door: tekstMap(r.door, isVondst)
       };
     });
     const spelers = Array.isArray(data.spelers)
       ? data.spelers.filter(s => isObj(s) && typeof s.id === 'string' && typeof s.naam === 'string')
-        .map(s => ({ id: s.id, naam: s.naam }))
+        .map(s => ({ id: kort(s.id, 40), naam: kort(s.naam, 20) }))
       : [];
     const actief = reizen.find(r => r.id === data.actiefId && r.eind === null);
     const b = data.bingo;
     const bingo = isObj(b) && typeof b.code === 'string' && CARD_SIZES[b.size]
-      ? { code: b.code, size: b.size, gemarkeerd: tekstLijst(b.gemarkeerd), geroepen: tekstLijst(b.geroepen) }
+      ? { code: kort(b.code, 12), size: b.size, gemarkeerd: codeLijst(b.gemarkeerd), geroepen: codeLijst(b.geroepen) }
       : null;
     return { reizen, spelers, actiefId: actief ? actief.id : null, bingo };
   }

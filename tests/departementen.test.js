@@ -149,3 +149,18 @@ test('nieuwePrijzen geeft alleen wat er net bij is gekomen', () => {
   const tien = { vondsten: { ...negen.vondsten, [game.METRO[9].code]: 10 } };
   assert.ok(game.nieuwePrijzen(negen, tien).some(p => p.id === 'mijlpaal:10'));
 });
+
+test('back-up: onbekende codes en te lange teksten worden eruit gefilterd', () => {
+  const terug = game.valideerBackup({
+    reizen: [{ id: 'x', start: 1, eind: 2, vondsten: { '<img>': 5, '13': 6 }, bonus: { ZZ: 1, TT: 2, '13': 3 }, door: { '13': 's1', onzin: 's1' } }],
+    spelers: [{ id: 's1', naam: 'x'.repeat(100) }],
+    bingo: { code: 'y'.repeat(100), size: 16, gemarkeerd: ['13', '13', '974', '<i>'], geroepen: ['99', '75', 7] }
+  });
+  assert.deepEqual(terug.reizen[0].vondsten, { '13': 6 });
+  assert.deepEqual(terug.reizen[0].bonus, { TT: 2 });
+  assert.deepEqual(terug.reizen[0].door, { '13': 's1' });
+  assert.equal(terug.spelers[0].naam.length, 20);
+  assert.equal(terug.bingo.code.length, 12);
+  assert.deepEqual(terug.bingo.gemarkeerd, ['13']); // overzee en onzin doen niet mee in bingo
+  assert.deepEqual(terug.bingo.geroepen, ['75']);
+});
