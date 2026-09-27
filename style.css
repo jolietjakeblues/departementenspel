@@ -170,6 +170,9 @@ details { margin-top: 14px; }
 .plaat.zwart { background: #111; color: #e8e8e8; border-color: #888; }
 .plaat.rood { background: #c8322f; color: #fff; }
 .plaat.groen { background: #1f7a3c; color: #f39c12; }
+.plaat.roze { background: #f4b8cb; color: #111; }
+.plaat.rood .datum { background: #c8322f; color: #fff; border-left: 1px solid rgba(255,255,255,.4); }
+.plaat.roze .datum { background: #f4b8cb; color: #111; border-left: 1px solid rgba(0,0,0,.25); }
 .plaat .datum { background: #fff; color: #c8322f; font-size: .7rem; display: flex; align-items: center; padding: 0 5px; }
 .let-op { border-left: 4px solid var(--rouge); padding-left: 10px; }
 
