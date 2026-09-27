@@ -151,9 +151,68 @@
     };
   }
 
+  // Klassement: hoeveel departementen (en bonussen) elke speler vond.
+  // reis.door: {code: spelerId}. Werkt voor één reis of een lijst reizen.
+  function klassement(reizen, spelers) {
+    const lijst = Array.isArray(reizen) ? reizen : [reizen];
+    const score = new Map(spelers.map(s => [s.id, { id: s.id, naam: s.naam, aantal: 0, bonus: 0 }]));
+    lijst.forEach(r => {
+      const door = r.door || {};
+      Object.keys(r.vondsten || {}).forEach(c => { const s = score.get(door[c]); if (s) s.aantal++; });
+      Object.keys(r.bonus || {}).forEach(c => { const s = score.get(door[c]); if (s) s.bonus++; });
+    });
+    return [...score.values()].sort((a, b) => b.aantal - a.aantal || b.bonus - a.bonus || a.naam.localeCompare(b.naam));
+  }
+
+  // ---------- Back-up ----------
+  const BACKUP_APP = 'departementenspel';
+  function maakBackup(state, nu = Date.now()) {
+    return { app: BACKUP_APP, versie: 1, gemaakt: nu, data: state };
+  }
+
+  const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+  const tijdMap = v => isObj(v)
+    ? Object.fromEntries(Object.entries(v).filter(([, t]) => typeof t === 'number' && isFinite(t)))
+    : {};
+  const tekstMap = v => isObj(v)
+    ? Object.fromEntries(Object.entries(v).filter(([, t]) => typeof t === 'string'))
+    : {};
+  const tekstLijst = v => Array.isArray(v) ? v.filter(x => typeof x === 'string') : [];
+
+  // Controleert een ingelezen back-up en geeft een schone state terug. Gooit een fout als het
+  // bestand niet van deze app is, zodat een verkeerd bestand de huidige gegevens niet overschrijft.
+  function valideerBackup(obj) {
+    const fout = () => { throw new Error('Dit is geen geldig back-upbestand van het departementenspel.'); };
+    if (!isObj(obj)) fout();
+    const data = obj.app === BACKUP_APP ? obj.data : obj;
+    if (!isObj(data) || !Array.isArray(data.reizen)) fout();
+    const reizen = data.reizen.map(r => {
+      if (!isObj(r) || typeof r.id !== 'string' || typeof r.start !== 'number' || !isObj(r.vondsten)) fout();
+      return {
+        id: r.id,
+        start: r.start,
+        eind: typeof r.eind === 'number' ? r.eind : null,
+        vondsten: tijdMap(r.vondsten),
+        bonus: tijdMap(r.bonus),
+        door: tekstMap(r.door)
+      };
+    });
+    const spelers = Array.isArray(data.spelers)
+      ? data.spelers.filter(s => isObj(s) && typeof s.id === 'string' && typeof s.naam === 'string')
+        .map(s => ({ id: s.id, naam: s.naam }))
+      : [];
+    const actief = reizen.find(r => r.id === data.actiefId && r.eind === null);
+    const b = data.bingo;
+    const bingo = isObj(b) && typeof b.code === 'string' && CARD_SIZES[b.size]
+      ? { code: b.code, size: b.size, gemarkeerd: tekstLijst(b.gemarkeerd), geroepen: tekstLijst(b.geroepen) }
+      : null;
+    return { reizen, spelers, actiefId: actief ? actief.id : null, bingo };
+  }
+
   const api = {
     DEPARTEMENTEN, BONUS, METRO, OUTRE_MER, BY_CODE, BONUS_BY_CODE,
-    normalize, gridRows, makeBingoCard, bingoStatus, randomCardCode, CARD_SIZES, MIX, frequentie, statistieken
+    normalize, gridRows, makeBingoCard, bingoStatus, randomCardCode, CARD_SIZES, MIX, frequentie, statistieken,
+    klassement, maakBackup, valideerBackup
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.DEP_GAME = api;

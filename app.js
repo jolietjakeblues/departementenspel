@@ -6,13 +6,14 @@
   const TOTAAL = G.DEPARTEMENTEN.length;
 
   // ---------- Opslag ----------
-  // state: { reizen: [{ id, start, eind, vondsten: {code: tijd}, bonus: {code: tijd} }], actiefId, bingo: {code, size, gemarkeerd: []} }
+  // state: { reizen: [{ id, start, eind, vondsten: {code: tijd}, bonus: {code: tijd}, door: {code: spelerId} }],
+  //          spelers: [{ id, naam }], actiefId, bingo: { code, size, gemarkeerd: [], geroepen: [] } }
   function laad() {
     try {
       const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (s && Array.isArray(s.reizen)) return s;
+      if (s) return G.valideerBackup(s);
     } catch (e) { /* geen of kapotte opslag: begin leeg */ }
-    return { reizen: [], actiefId: null, bingo: null };
+    return { reizen: [], spelers: [], actiefId: null, bingo: null };
   }
   function bewaar() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* privévenster e.d. */ }
@@ -22,18 +23,30 @@
   const actieveReis = () => state.reizen.find(r => r.id === state.actiefId) || null;
   // De reis die we tonen: de actieve, anders de laatste.
   const getoondeReis = () => actieveReis() || state.reizen[state.reizen.length - 1] || null;
+  const spelerNaam = id => (state.spelers.find(s => s.id === id) || {}).naam;
 
   // ---------- Hulpjes ----------
   const fmtDatum = t => new Date(t).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });
   const fmtTijd = t => new Date(t).toLocaleString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   let toastTimer;
-  function toast(tekst) {
-    const el = $('toast');
-    el.textContent = tekst;
-    el.classList.remove('hidden');
+  let toastFn = null;
+  // actie: optioneel { label, fn }, bv. een knop "Ongedaan".
+  function toast(tekst, actie) {
+    $('toastTekst').textContent = tekst;
+    const knop = $('toastActie');
+    toastFn = actie ? actie.fn : null;
+    knop.textContent = actie ? actie.label : '';
+    knop.classList.toggle('hidden', !actie);
+    $('toast').classList.remove('hidden');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
+    toastTimer = setTimeout(() => $('toast').classList.add('hidden'), actie ? 5000 : 2600);
   }
+  $('toastActie').addEventListener('click', () => {
+    const fn = toastFn;
+    toastFn = null;
+    $('toast').classList.add('hidden');
+    if (fn) fn();
+  });
   function el(tag, attrs = {}, tekst) {
     const e = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
@@ -53,7 +66,7 @@
 
   // ---------- Reis ----------
   $('btnStart').addEventListener('click', () => {
-    const reis = { id: Date.now().toString(36), start: Date.now(), eind: null, vondsten: {}, bonus: {} };
+    const reis = { id: Date.now().toString(36), start: Date.now(), eind: null, vondsten: {}, bonus: {}, door: {} };
     state.reizen.push(reis);
     state.actiefId = reis.id;
     bewaar();
@@ -76,23 +89,38 @@
     const reis = actieveReis();
     if (!reis) { toast('Start eerst een reis'); return false; }
     const lijst = soort === 'bonus' ? reis.bonus : reis.vondsten;
-    if (lijst[code]) delete lijst[code];
+    if (lijst[code]) { delete lijst[code]; delete reis.door[code]; }
     else lijst[code] = Date.now();
     bewaar();
     return !!lijst[code];
   }
 
-  function voegToe(invoer) {
+  function voegToe(invoer, spelerId) {
     const r = G.normalize(invoer);
     if (r.type === 'onbekend') { toast(`${invoer || '?'} is geen departement`); return; }
     const reis = actieveReis();
     if (!reis) { toast('Start eerst een reis'); return; }
     const lijst = r.type === 'bonus' ? reis.bonus : reis.vondsten;
-    if (lijst[r.code]) { toast(`Déjà vu ! ${r.code} ${r.item.naam} had je al`); return; }
+    if (lijst[r.code]) {
+      const wie = spelerNaam(reis.door[r.code]);
+      toast(`Déjà vu ! ${r.code} ${r.item.naam} had ${wie ? wie + ' al gevonden' : 'je al'}`);
+      return;
+    }
     lijst[r.code] = Date.now();
+    if (spelerId) reis.door[r.code] = spelerId;
     bewaar();
     const n = Object.keys(reis.vondsten).length;
-    toast(r.type === 'bonus' ? `Formidable! Bonus: ${r.item.naam}` : `Bravo ! ${r.code} ${r.item.naam} (${n}/${TOTAAL})`);
+    const wie = spelerId ? ` voor ${spelerNaam(spelerId)}` : '';
+    toast(r.type === 'bonus' ? `Formidable ! Bonus${wie}: ${r.item.naam}` : `Bravo${wie} ! ${r.code} ${r.item.naam} (${n}/${TOTAAL})`, {
+      label: 'Ongedaan',
+      fn: () => {
+        delete lijst[r.code];
+        delete reis.door[r.code];
+        bewaar();
+        toast(`${r.code} ${r.item.naam} weer weggehaald`);
+        render();
+      }
+    });
     render(r.code);
   }
 
@@ -118,6 +146,51 @@
     else if (buffer.length < 3) buffer += b.textContent.trim();
     toonBuffer();
   });
+  $('spelerKnoppen').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (!buffer) { toast('Toets eerst het nummer'); return; }
+    voegToe(buffer, b.dataset.id);
+    buffer = '';
+    toonBuffer();
+  });
+
+  // ---------- Spelers ----------
+  function renderSpelers() {
+    const knoppen = $('spelerKnoppen');
+    knoppen.textContent = '';
+    state.spelers.forEach(sp => knoppen.appendChild(el('button', { class: 'speler-knop', 'data-id': sp.id }, sp.naam)));
+    $('spelerKeuze').classList.toggle('hidden', !state.spelers.length);
+    $('spelersAantal').textContent = state.spelers.length ? `(${state.spelers.length})` : '';
+
+    const lijst = $('spelersLijst');
+    lijst.textContent = '';
+    if (!state.spelers.length) lijst.appendChild(el('li', { class: 'muted' }, 'Nog geen spelers. Zonder spelers tellen vondsten voor iedereen samen.'));
+    state.spelers.forEach(sp => {
+      const li = el('li');
+      li.appendChild(el('span', {}, sp.naam));
+      const weg = el('button', { class: 'link-knop', 'aria-label': `${sp.naam} verwijderen` }, 'verwijder');
+      weg.addEventListener('click', () => {
+        if (!confirm(`${sp.naam} verwijderen? Vondsten blijven staan, maar tellen niet meer mee in het klassement.`)) return;
+        state.spelers = state.spelers.filter(x => x.id !== sp.id);
+        bewaar();
+        render();
+      });
+      li.appendChild(weg);
+      lijst.appendChild(li);
+    });
+  }
+  $('spelerNieuw').addEventListener('submit', e => {
+    e.preventDefault();
+    const naam = $('spelerNaam').value.trim();
+    if (!naam) return;
+    if (state.spelers.some(s => s.naam.toLowerCase() === naam.toLowerCase())) { toast(`${naam} speelt al mee`); return; }
+    state.spelers.push({ id: 's' + Date.now().toString(36), naam });
+    $('spelerNaam').value = '';
+    bewaar();
+    render();
+  });
+
   // Fysiek toetsenbord (handig op tablet of laptop).
   document.addEventListener('keydown', e => {
     if (!$('view-spel').classList.contains('active') || !actieveReis() || e.target.tagName === 'INPUT') return;
@@ -142,6 +215,12 @@
     $('balk').style.width = (100 * n / TOTAAL) + '%';
     $('tellingSub').textContent = !reis ? 'nog geen reis gestart' : (actief ? 'deze reis' : 'laatste reis');
     $('reisStatus').textContent = actief ? `Onderweg sinds ${fmtTijd(actieveReis().start)}` : 'Geen reis actief';
+    const mini = $('miniKlassement');
+    mini.textContent = '';
+    if (reis && state.spelers.length) {
+      G.klassement(reis, state.spelers).forEach((sp, i) =>
+        mini.appendChild(el('span', {}, `${i === 0 && sp.aantal ? '🥇 ' : ''}${sp.naam} ${sp.aantal}`)));
+    }
 
     const tabel = $('tabel');
     tabel.textContent = '';
@@ -187,7 +266,9 @@
       });
     }
     $('sheetTekst').textContent = item.toelichting;
-    $('sheetGevonden').textContent = lijst[r.code] ? `Gevonden op ${fmtTijd(lijst[r.code])}` : 'Nog niet gevonden' + (reis ? '' : '.');
+    const wie = reis && spelerNaam(reis.door[r.code]);
+    $('sheetGevonden').textContent = lijst[r.code]
+      ? `Gevonden${wie ? ' door ' + wie : ''} op ${fmtTijd(lijst[r.code])}` : 'Nog niet gevonden';
     const knop = $('sheetToggle');
     knop.classList.toggle('hidden', !actieveReis());
     knop.textContent = lijst[r.code] ? 'Toch niet gevonden' : 'Markeer als gevonden';
@@ -329,7 +410,7 @@
 
   // ---------- Bingo ----------
   function startBingo(code, size) {
-    state.bingo = { code, size, gemarkeerd: [] };
+    state.bingo = { code, size, gemarkeerd: [], geroepen: [] };
     bewaar();
     renderBingo();
   }
@@ -351,7 +432,11 @@
     const kaart = G.makeBingoCard(b.code, b.size);
     const had = G.bingoStatus(kaart, new Set(b.gemarkeerd)).lines.length;
     const idx = b.gemarkeerd.indexOf(code);
-    if (idx >= 0) b.gemarkeerd.splice(idx, 1); else b.gemarkeerd.push(code);
+    if (idx >= 0) b.gemarkeerd.splice(idx, 1);
+    else {
+      b.gemarkeerd.push(code);
+      if (!b.geroepen.includes(code)) b.geroepen.push(code);
+    }
     bewaar();
     renderBingo();
     const nu = G.bingoStatus(kaart, new Set(b.gemarkeerd));
@@ -366,6 +451,8 @@
     const r = G.normalize(invoer.value);
     invoer.value = '';
     if (!state.bingo || r.type !== 'dep') { toast('Geen geldig departement'); return; }
+    // Elk geroepen nummer komt in de lijst, ook als het niet op je eigen kaart staat.
+    if (!state.bingo.geroepen.includes(r.code)) { state.bingo.geroepen.push(r.code); bewaar(); renderBingo(); }
     const kaart = G.makeBingoCard(state.bingo.code, state.bingo.size);
     if (!kaart.cells.includes(r.code)) { toast(`${r.code} ${r.item.naam} staat niet op je kaart`); return; }
     if (state.bingo.gemarkeerd.includes(r.code)) { toast(`${r.code} had je al afgestreept`); return; }
@@ -407,6 +494,13 @@
       v.addEventListener('click', () => bingoMarkeer(code));
       grid.appendChild(v);
     });
+
+    const geroepen = $('geroepen');
+    geroepen.textContent = '';
+    $('geroepenAantal').textContent = b.geroepen.length ? `(${b.geroepen.length})` : '';
+    if (!b.geroepen.length) geroepen.appendChild(el('span', { class: 'muted' }, 'Nog niets geroepen'));
+    b.geroepen.slice().reverse().forEach(code => geroepen.appendChild(
+      el('span', { class: kaart.cells.includes(code) ? 'op-kaart' : '', title: G.BY_CODE.get(code).naam }, code)));
   }
 
   // ---------- Statistieken ----------
@@ -439,6 +533,7 @@
       const c = kaartje('Nog geen statistieken');
       c.appendChild(el('p', { class: 'muted' }, 'Start een reis op het tabblad Spel. Na je eerste vondsten verschijnen hier de cijfers.'));
       root.appendChild(c);
+      root.appendChild(backupKaart());
       return;
     }
     const st = G.statistieken(state.reizen);
@@ -462,6 +557,20 @@
         `Eerste: ${c0} ${G.BY_CODE.get(c0).naam} (${fmtTijd(t0)}). Laatste: ${cN} ${G.BY_CODE.get(cN).naam} (${fmtTijd(tN)}).`));
     }
     root.appendChild(c1);
+
+    // Klassement
+    if (state.spelers.length) {
+      const ck = kaartje('Klassement');
+      const lijstje = (titel, rij) => {
+        ck.appendChild(el('h3', { class: 'kop' }, titel));
+        const ol = el('ol', { class: 'klassement' });
+        rij.forEach(sp => ol.appendChild(el('li', {}, `${sp.naam}: ${sp.aantal}${sp.bonus ? ` (+${sp.bonus} bonus)` : ''}`)));
+        ck.appendChild(ol);
+      };
+      lijstje(actieveReis() ? 'Deze reis' : 'Laatste reis', G.klassement(reis, state.spelers));
+      if (state.reizen.length > 1) lijstje('Alle reizen samen', G.klassement(state.reizen, state.spelers));
+      root.appendChild(ck);
+    }
 
     // Alle reizen
     const c2 = kaartje('Alle reizen samen');
@@ -534,11 +643,71 @@
     });
     c6.appendChild(ul);
     root.appendChild(c6);
+    root.appendChild(backupKaart());
+  }
+
+  // ---------- Back-up ----------
+  function backupKaart() {
+    const c = kaartje('Back-up');
+    c.appendChild(el('p', { class: 'muted klein-tekst' },
+      'Alles staat alleen op deze telefoon. Maak af en toe een back-up, bijvoorbeeld naar je mail of Drive, zodat je niets kwijtraakt bij een nieuwe telefoon.'));
+    const knoppen = el('div', { class: 'backup-knoppen' });
+    const exp = el('button', { class: 'btn primary' }, 'Exporteer');
+    exp.addEventListener('click', exporteer);
+    const imp = el('button', { class: 'btn' }, 'Importeer');
+    const bestand = el('input', { type: 'file', accept: '.json,application/json', class: 'hidden' });
+    imp.addEventListener('click', () => bestand.click());
+    bestand.addEventListener('change', () => { if (bestand.files[0]) importeer(bestand.files[0]); });
+    knoppen.append(exp, imp, bestand);
+    c.appendChild(knoppen);
+    return c;
+  }
+
+  async function exporteer() {
+    const datum = new Date().toISOString().slice(0, 10);
+    const naam = `departementenspel-${datum}.json`;
+    const inhoud = JSON.stringify(G.maakBackup(state), null, 1);
+    const bestand = new File([inhoud], naam, { type: 'application/json' });
+    // Op de telefoon liefst via het deelmenu (mail, Drive, WhatsApp), anders gewoon downloaden.
+    if (navigator.canShare && navigator.canShare({ files: [bestand] })) {
+      try {
+        await navigator.share({ files: [bestand], title: 'Back-up departementenspel' });
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    const url = URL.createObjectURL(bestand);
+    const a = el('a', { href: url, download: naam });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Back-up opgeslagen');
+  }
+
+  async function importeer(bestand) {
+    let nieuw;
+    try {
+      nieuw = G.valideerBackup(JSON.parse(await bestand.text()));
+    } catch (e) {
+      toast(e instanceof SyntaxError ? 'Dit bestand kan niet gelezen worden' : e.message);
+      return;
+    }
+    const n = nieuw.reizen.length;
+    if (!confirm(`Back-up met ${n} ${n === 1 ? 'reis' : 'reizen'} en ${nieuw.spelers.length} spelers terugzetten? Wat nu op deze telefoon staat, wordt vervangen.`)) return;
+    Object.assign(state, nieuw);
+    bewaar();
+    render();
+    renderBingo();
+    renderStats();
+    toast('Back-up teruggezet');
   }
 
   // ---------- Start ----------
   $('kentekenInfo').innerHTML = window.KENTEKEN_HTML;
   function render(nieuw) {
+    renderSpelers();
     renderSpel(nieuw);
     tekenKaartKleuren();
   }
@@ -547,7 +716,30 @@
   toonBuffer();
   laadKaart();
 
+  // ---------- Nieuwe versie ----------
+  // Een nieuwe service worker wacht tot de speler op "Ververs" tikt, zodat een update nooit
+  // midden in het spel de pagina herlaadt.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    let herladen = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (herladen) return;
+      herladen = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      const toonUpdate = sw => {
+        $('updateBalk').classList.remove('hidden');
+        $('btnUpdate').onclick = () => sw.postMessage('SKIP_WAITING');
+      };
+      if (reg.waiting && navigator.serviceWorker.controller) toonUpdate(reg.waiting);
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) toonUpdate(sw);
+        });
+      });
+      // Bij terugkeren naar de app even kijken of er een nieuwe versie is.
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+    }).catch(() => {});
   }
 })();
