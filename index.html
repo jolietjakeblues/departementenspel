@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1d3a8a">
+  <meta name="theme-color" content="#002654">
   <title>Departementenspel</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -12,15 +12,19 @@
 </head>
 <body>
   <header class="topbar">
-    <h1>Departementenspel</h1>
+    <div>
+      <h1>Departementenspel</h1>
+      <div class="ondertitel">Le jeu des départements</div>
+    </div>
     <div id="reisStatus" class="reis-status"></div>
   </header>
 
-  <main>
+  <main class="na-kop">
     <!-- SPEL -->
     <section id="view-spel" class="view active" aria-label="Spel">
       <div id="startBlok" class="card center">
-        <p class="groot">🇫🇷 Rij je Frankrijk in?</p>
+        <div class="bienvenue">Bienvenue en France</div>
+        <p class="groot">Rij je Frankrijk in?</p>
         <button id="btnStart" class="btn primary big">Start reis</button>
         <p class="muted">De reis stopt als je Frankrijk weer uit rijdt.</p>
       </div>
@@ -51,9 +55,6 @@
       <div id="stopBlok" class="center hidden">
         <button id="btnStop" class="btn danger">Ik rij Frankrijk uit, stop reis</button>
       </div>
-
-      <h2 class="kop">Eerdere reizen</h2>
-      <ul id="reizen" class="reizen"></ul>
     </section>
 
     <!-- KAART -->
@@ -70,7 +71,7 @@
     <section id="view-bingo" class="view" aria-label="Bingo">
       <div id="bingoNieuw" class="card">
         <h2>Nieuwe bingokaart</h2>
-        <p class="muted">Iedereen maakt een eigen kaart op zijn eigen telefoon. Alleen departementen van het vasteland en Corsica doen mee.</p>
+        <p class="muted">Iedereen maakt een eigen kaart op de eigen telefoon. Wordt er een nummer geroepen, dan mag iedereen die het op de kaart heeft het afstrepen. Alleen departementen van het vasteland en Corsica doen mee, in een mix van vaak, gemiddeld en zelden geziene nummers.</p>
         <label class="veld">Aantal vakjes
           <select id="bingoGrootte">
             <option value="12">12 (3 × 4)</option>
@@ -93,11 +94,21 @@
             <span id="bingoTelling" class="muted"></span>
           </div>
           <div id="bingoMelding" class="bingo-melding hidden"></div>
+          <form id="bingoRoep" class="bingo-roep" autocomplete="off">
+            <label for="bingoRoepInvoer">Geroepen nummer</label>
+            <input id="bingoRoepInvoer" maxlength="3" autocapitalize="characters" inputmode="text" placeholder="13">
+            <button class="btn primary" type="submit">Streep af</button>
+          </form>
           <div id="bingoGrid" class="bingo-grid"></div>
-          <p class="muted klein-tekst">Tik op een vakje als je dat departement ziet. Nog een keer tikken maakt het ongedaan.</p>
+          <p class="muted klein-tekst">Tik op een vakje of vul het geroepen nummer in. Nog een keer tikken maakt het ongedaan.</p>
         </div>
         <div class="center"><button id="btnBingoStop" class="btn">Andere kaart</button></div>
       </div>
+    </section>
+
+    <!-- STATISTIEKEN -->
+    <section id="view-stats" class="view" aria-label="Statistieken">
+      <div id="stats"></div>
     </section>
 
     <!-- KENTEKENS -->
@@ -110,6 +121,7 @@
     <button data-view="spel" class="active"><span>🔢</span>Spel</button>
     <button data-view="kaart"><span>🗺️</span>Kaart</button>
     <button data-view="bingo"><span>🎯</span>Bingo</button>
+    <button data-view="stats"><span>📊</span>Statistiek</button>
     <button data-view="kentekens"><span>🚗</span>Kentekens</button>
   </nav>
 

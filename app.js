@@ -22,11 +22,6 @@
   const actieveReis = () => state.reizen.find(r => r.id === state.actiefId) || null;
   // De reis die we tonen: de actieve, anders de laatste.
   const getoondeReis = () => actieveReis() || state.reizen[state.reizen.length - 1] || null;
-  const alleVondsten = () => {
-    const s = new Set();
-    state.reizen.forEach(r => Object.keys(r.vondsten).forEach(c => s.add(c)));
-    return s;
-  };
 
   // ---------- Hulpjes ----------
   const fmtDatum = t => new Date(t).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -52,6 +47,7 @@
     document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.view === naam));
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + naam));
     if (naam === 'kaart') tekenKaartKleuren();
+    if (naam === 'stats') renderStats();
     window.scrollTo(0, 0);
   }
 
@@ -61,7 +57,7 @@
     state.reizen.push(reis);
     state.actiefId = reis.id;
     bewaar();
-    toast('Bienvenue en France! Veel speurplezier.');
+    toast('Bienvenue en France ! Veel speurplezier.');
     render();
   });
   $('btnStop').addEventListener('click', () => {
@@ -72,7 +68,7 @@
     reis.eind = Date.now();
     state.actiefId = null;
     bewaar();
-    toast(`Au revoir! Eindstand: ${n} / ${TOTAAL}`);
+    toast(`Au revoir ! Eindstand: ${n} / ${TOTAAL}`);
     render();
   });
 
@@ -92,11 +88,11 @@
     const reis = actieveReis();
     if (!reis) { toast('Start eerst een reis'); return; }
     const lijst = r.type === 'bonus' ? reis.bonus : reis.vondsten;
-    if (lijst[r.code]) { toast(`${r.code} ${r.item.naam} had je al`); return; }
+    if (lijst[r.code]) { toast(`Déjà vu ! ${r.code} ${r.item.naam} had je al`); return; }
     lijst[r.code] = Date.now();
     bewaar();
     const n = Object.keys(reis.vondsten).length;
-    toast(r.type === 'bonus' ? `Bonus: ${r.item.naam}!` : `${r.code} ${r.item.naam}! (${n}/${TOTAAL})`);
+    toast(r.type === 'bonus' ? `Formidable! Bonus: ${r.item.naam}` : `Bravo ! ${r.code} ${r.item.naam} (${n}/${TOTAAL})`);
     render(r.code);
   }
 
@@ -144,9 +140,7 @@
     const n = Object.keys(gevonden).length;
     $('telling').textContent = `${n} / ${TOTAAL}`;
     $('balk').style.width = (100 * n / TOTAAL) + '%';
-    const totaal = alleVondsten().size;
-    $('tellingSub').textContent = !reis ? 'nog geen reis gestart'
-      : (actief ? 'deze reis' : 'laatste reis') + (state.reizen.length > 1 ? ` · alle reizen samen: ${totaal}` : '');
+    $('tellingSub').textContent = !reis ? 'nog geen reis gestart' : (actief ? 'deze reis' : 'laatste reis');
     $('reisStatus').textContent = actief ? `Onderweg sinds ${fmtTijd(actieveReis().start)}` : 'Geen reis actief';
 
     const tabel = $('tabel');
@@ -172,16 +166,6 @@
       bonus.appendChild(c);
     });
 
-    const lijst = $('reizen');
-    lijst.textContent = '';
-    const oud = state.reizen.filter(r => r.eind).slice().reverse();
-    if (!oud.length) lijst.appendChild(el('li', { class: 'muted' }, 'Nog geen afgeronde reizen'));
-    oud.forEach(r => {
-      const li = el('li');
-      li.appendChild(el('span', {}, `${fmtDatum(r.start)} – ${fmtDatum(r.eind)}`));
-      li.appendChild(el('strong', {}, `${Object.keys(r.vondsten).length} / ${TOTAAL}`));
-      lijst.appendChild(li);
-    });
   }
 
   // ---------- Infovenster ----------
@@ -220,7 +204,7 @@
   $('sheetToggle').addEventListener('click', () => {
     const r = G.normalize(sheetCode);
     const aan = vondstToggle(r.code, r.type === 'bonus' ? 'bonus' : 'dep');
-    toast(aan ? `${r.item.naam} gevonden!` : `${r.item.naam} weer weggehaald`);
+    toast(aan ? `Bravo ! ${r.item.naam} gevonden` : `${r.item.naam} weer weggehaald`);
     sluitSheet();
     render(aan ? r.code : null);
   });
@@ -362,6 +346,33 @@
     renderBingo();
   });
 
+  function bingoMarkeer(code) {
+    const b = state.bingo;
+    const kaart = G.makeBingoCard(b.code, b.size);
+    const had = G.bingoStatus(kaart, new Set(b.gemarkeerd)).lines.length;
+    const idx = b.gemarkeerd.indexOf(code);
+    if (idx >= 0) b.gemarkeerd.splice(idx, 1); else b.gemarkeerd.push(code);
+    bewaar();
+    renderBingo();
+    const nu = G.bingoStatus(kaart, new Set(b.gemarkeerd));
+    if (nu.lines.length > had) {
+      toast(nu.vol ? 'Carton plein ! Volle kaart!' : 'BINGO ! Félicitations !');
+      if (navigator.vibrate) navigator.vibrate([100, 60, 200]);
+    }
+  }
+  $('bingoRoep').addEventListener('submit', e => {
+    e.preventDefault();
+    const invoer = $('bingoRoepInvoer');
+    const r = G.normalize(invoer.value);
+    invoer.value = '';
+    if (!state.bingo || r.type !== 'dep') { toast('Geen geldig departement'); return; }
+    const kaart = G.makeBingoCard(state.bingo.code, state.bingo.size);
+    if (!kaart.cells.includes(r.code)) { toast(`${r.code} ${r.item.naam} staat niet op je kaart`); return; }
+    if (state.bingo.gemarkeerd.includes(r.code)) { toast(`${r.code} had je al afgestreept`); return; }
+    bingoMarkeer(r.code);
+    if ($('toast').classList.contains('hidden') || !/BINGO|Carton/.test($('toast').textContent)) toast(`${r.code} ${r.item.naam} afgestreept`);
+  });
+
   function renderBingo() {
     const b = state.bingo;
     $('bingoNieuw').classList.toggle('hidden', !!b);
@@ -384,7 +395,7 @@
     });
     const melding = $('bingoMelding');
     melding.classList.toggle('hidden', !status.lines.length);
-    melding.textContent = status.vol ? '🎉 VOLLE KAART! 🎉' : (status.lines.length ? '🎯 BINGO!' : '');
+    melding.textContent = status.vol ? 'Carton plein ! Volle kaart!' : (status.lines.length ? 'BINGO !' : '');
 
     const grid = $('bingoGrid');
     grid.style.gridTemplateColumns = `repeat(${kaart.cols}, 1fr)`;
@@ -393,17 +404,136 @@
       const v = el('button', { class: 'bingo-vak' + (aan.has(code) ? ' aan' : '') + (opLijn.has(i) ? ' lijn' : '') });
       v.appendChild(el('span', { class: 'nr' }, code));
       v.appendChild(el('span', { class: 'nm' }, G.BY_CODE.get(code).naam));
-      v.addEventListener('click', () => {
-        const had = status.lines.length;
-        const idx = b.gemarkeerd.indexOf(code);
-        if (idx >= 0) b.gemarkeerd.splice(idx, 1); else b.gemarkeerd.push(code);
-        bewaar();
-        renderBingo();
-        const nu = G.bingoStatus(kaart, new Set(b.gemarkeerd));
-        if (nu.lines.length > had) { toast(nu.vol ? 'VOLLE KAART!' : 'BINGO!'); if (navigator.vibrate) navigator.vibrate([100, 60, 200]); }
-      });
+      v.addEventListener('click', () => bingoMarkeer(code));
       grid.appendChild(v);
     });
+  }
+
+  // ---------- Statistieken ----------
+  const fmtGetal = (n, d = 1) => n.toLocaleString('nl-NL', { maximumFractionDigits: d });
+  function fmtDuur(ms) {
+    const uur = ms / 3600000;
+    if (uur < 1) return `${Math.round(ms / 60000)} min`;
+    return uur < 48 ? `${fmtGetal(uur)} uur` : `${fmtGetal(uur / 24)} dagen`;
+  }
+  function kaartje(titel) {
+    const c = el('div', { class: 'card' });
+    c.appendChild(el('h2', {}, titel));
+    return c;
+  }
+  function kerncijfers(paren) {
+    const g = el('div', { class: 'kerncijfers' });
+    paren.forEach(([waarde, label]) => {
+      const k = el('div', { class: 'kerncijfer' });
+      k.appendChild(el('div', { class: 'waarde' }, waarde));
+      k.appendChild(el('div', { class: 'label' }, label));
+      g.appendChild(k);
+    });
+    return g;
+  }
+
+  function renderStats() {
+    const root = $('stats');
+    root.textContent = '';
+    if (!state.reizen.length) {
+      const c = kaartje('Nog geen statistieken');
+      c.appendChild(el('p', { class: 'muted' }, 'Start een reis op het tabblad Spel. Na je eerste vondsten verschijnen hier de cijfers.'));
+      root.appendChild(c);
+      return;
+    }
+    const st = G.statistieken(state.reizen);
+
+    // Huidige of laatste reis
+    const reis = getoondeReis();
+    const tijden = Object.values(reis.vondsten).sort((a, b) => a - b);
+    const duur = (reis.eind || Date.now()) - reis.start;
+    const c1 = kaartje(actieveReis() ? 'Deze reis' : 'Laatste reis');
+    c1.appendChild(kerncijfers([
+      [`${tijden.length} / ${TOTAAL}`, 'departementen'],
+      [fmtDuur(duur), actieveReis() ? 'onderweg' : 'duur'],
+      [duur > 3600000 ? fmtGetal(tijden.length / (duur / 3600000)) : '–', 'vondsten per uur'],
+      [`${Object.keys(reis.bonus).length}`, 'bijzondere vondsten']
+    ]));
+    if (tijden.length) {
+      const eerste = Object.entries(reis.vondsten).sort((a, b) => a[1] - b[1]);
+      const [c0, t0] = eerste[0];
+      const [cN, tN] = eerste[eerste.length - 1];
+      c1.appendChild(el('p', { class: 'muted klein-tekst' },
+        `Eerste: ${c0} ${G.BY_CODE.get(c0).naam} (${fmtTijd(t0)}). Laatste: ${cN} ${G.BY_CODE.get(cN).naam} (${fmtTijd(tN)}).`));
+    }
+    root.appendChild(c1);
+
+    // Alle reizen
+    const c2 = kaartje('Alle reizen samen');
+    c2.appendChild(kerncijfers([
+      [`${st.reizen}`, st.reizen === 1 ? 'reis' : 'reizen'],
+      [fmtDuur(st.totaalDagen * 86400000), 'in Frankrijk'],
+      [fmtGetal(st.gemiddeld), 'gemiddeld per reis'],
+      [st.beste ? `${st.beste.aantal}` : '–', st.beste ? `record (${fmtDatum(st.beste.start)})` : 'record'],
+      [`${st.ooit} / ${TOTAAL}`, 'ooit gevonden'],
+      [`${st.bonus.length}`, 'soorten bonus ooit']
+    ]));
+    root.appendChild(c2);
+
+    // Vaakst gevonden
+    if (st.vaakst.length) {
+      const c3 = kaartje('Vaakst gevonden');
+      const ol = el('ol', { class: 'lijst-vaakst' });
+      st.vaakst.forEach(([code, n]) => ol.appendChild(el('li', {}, `${code} ${G.BY_CODE.get(code).naam}: ${n} van ${st.reizen} ${st.reizen === 1 ? 'reis' : 'reizen'}`)));
+      c3.appendChild(ol);
+      root.appendChild(c3);
+    }
+
+    // Per regio
+    const c4 = kaartje('Per regio (ooit gevonden)');
+    st.regios.forEach(g => {
+      const r = el('div', { class: 'regio' });
+      r.appendChild(el('span', {}, g.regio));
+      r.appendChild(el('span', { class: 'muted' }, `${g.ooit} / ${g.totaal}`));
+      const b = el('div', { class: 'balk' });
+      const vul = el('div');
+      vul.style.width = (100 * g.ooit / g.totaal) + '%';
+      b.appendChild(vul);
+      r.appendChild(b);
+      c4.appendChild(r);
+    });
+    root.appendChild(c4);
+
+    // Nog nooit gezien
+    const c5 = kaartje(`Nog nooit gezien (${st.nooit.length})`);
+    const codes = el('div', { class: 'codes' });
+    st.nooit.forEach(code => {
+      const sp = el('span', { title: G.BY_CODE.get(code).naam }, code);
+      codes.appendChild(sp);
+    });
+    if (!st.nooit.length) c5.appendChild(el('p', {}, 'Allemaal gevonden. Chapeau !'));
+    else c5.appendChild(codes);
+    root.appendChild(c5);
+
+    // Reizen
+    const c6 = kaartje('Alle reizen');
+    const ul = el('ul', { class: 'reizen' });
+    state.reizen.slice().reverse().forEach(r => {
+      const li = el('li');
+      li.appendChild(el('span', {}, `${fmtDatum(r.start)} – ${r.eind ? fmtDatum(r.eind) : 'nu'}`));
+      const acties = el('span', { class: 'acties' });
+      acties.appendChild(el('strong', {}, `${Object.keys(r.vondsten).length} / ${TOTAAL}`));
+      if (r.eind) {
+        const weg = el('button', { class: 'link-knop', 'aria-label': 'Reis verwijderen' }, 'verwijder');
+        weg.addEventListener('click', () => {
+          if (!confirm(`Reis van ${fmtDatum(r.start)} verwijderen? Dit kan niet ongedaan worden.`)) return;
+          state.reizen = state.reizen.filter(x => x.id !== r.id);
+          bewaar();
+          render();
+          renderStats();
+        });
+        acties.appendChild(weg);
+      }
+      li.appendChild(acties);
+      ul.appendChild(li);
+    });
+    c6.appendChild(ul);
+    root.appendChild(c6);
   }
 
   // ---------- Start ----------

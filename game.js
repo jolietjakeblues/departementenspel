@@ -65,17 +65,41 @@
 
   const CARD_SIZES = { 12: [3, 4], 16: [4, 4], 20: [4, 5] };
 
+  // Hoe vaak je een departement ziet, grofweg naar inwonertal. Sinds 2009 kiest de eigenaar
+  // het nummer zelf, dus het blijft een schatting.
+  const VAAK = ['59', '75', '13', '93', '92', '69', '33', '94', '62', '78', '31', '77', '44', '91', '06', '95', '76', '34', '35', '38', '67', '57'];
+  const ZELDEN = ['48', '23', '05', '15', '09', '90', '52', '55', '04', '32', '46', '70', '58', '36', '19', '2A', '2B', '39', '65', '43'];
+  function frequentie(code) {
+    if (VAAK.includes(code)) return 'vaak';
+    if (ZELDEN.includes(code)) return 'zelden';
+    return 'gemiddeld';
+  }
+  // Verdeling per kaartgrootte: [vaak, gemiddeld, zelden].
+  const MIX = { 12: [6, 4, 2], 16: [7, 6, 3], 20: [9, 7, 4] };
+
+  function shuffle(arr, rand) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   // Bingokaart: alleen departementen van het vasteland + Corsica, geen overzee.
+  // Een vaste mix van vaak, gemiddeld en zelden geziene departementen houdt het spel spannend
+  // zonder dat één zeldzaam nummer alles ophoudt.
   function makeBingoCard(cardCode, size = 16) {
     if (!CARD_SIZES[size]) throw new Error('Ongeldige kaartgrootte: ' + size);
     const rand = mulberry32(hashString(String(cardCode).toUpperCase() + ':' + size));
-    const pool = METRO.map(d => d.code);
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(rand() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
+    const [nVaak, nGem, nZelden] = MIX[size];
+    const uit = f => shuffle(METRO.map(d => d.code).filter(c => frequentie(c) === f), rand);
+    const cells = shuffle([
+      ...uit('vaak').slice(0, nVaak),
+      ...uit('gemiddeld').slice(0, nGem),
+      ...uit('zelden').slice(0, nZelden)
+    ], rand);
     const [rows, cols] = CARD_SIZES[size];
-    return { code: String(cardCode).toUpperCase(), size, rows, cols, cells: pool.slice(0, size) };
+    return { code: String(cardCode).toUpperCase(), size, rows, cols, cells };
   }
 
   // Controleert welke lijnen vol zijn. Diagonalen tellen alleen op een vierkante kaart.
@@ -97,9 +121,39 @@
     return { lines, aantal, vol: aantal === cells.length };
   }
 
+  // Statistieken over alle reizen. reizen: [{ start, eind, vondsten: {code: tijd}, bonus: {code: tijd} }]
+  function statistieken(reizen, nu = Date.now()) {
+    const aantal = r => Object.keys(r.vondsten).length;
+    const duur = r => Math.max(0, (r.eind || nu) - r.start);
+    const telling = new Map(); // code -> aantal reizen waarin gevonden
+    reizen.forEach(r => Object.keys(r.vondsten).forEach(c => telling.set(c, (telling.get(c) || 0) + 1)));
+    const ooit = new Set(telling.keys());
+    const beste = reizen.reduce((b, r) => (!b || aantal(r) > aantal(b) ? r : b), null);
+    const regios = new Map();
+    DEPARTEMENTEN.forEach(d => {
+      const g = regios.get(d.regio) || { regio: d.regio, totaal: 0, ooit: 0 };
+      g.totaal++;
+      if (ooit.has(d.code)) g.ooit++;
+      regios.set(d.regio, g);
+    });
+    const bonus = new Set();
+    reizen.forEach(r => Object.keys(r.bonus || {}).forEach(c => bonus.add(c)));
+    return {
+      reizen: reizen.length,
+      totaalDagen: reizen.reduce((s, r) => s + duur(r), 0) / 86400000,
+      gemiddeld: reizen.length ? reizen.reduce((s, r) => s + aantal(r), 0) / reizen.length : 0,
+      beste: beste ? { start: beste.start, aantal: aantal(beste) } : null,
+      ooit: ooit.size,
+      nooit: DEPARTEMENTEN.filter(d => !ooit.has(d.code)).map(d => d.code),
+      vaakst: [...telling.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 10),
+      regios: [...regios.values()].sort((a, b) => b.ooit / b.totaal - a.ooit / a.totaal || a.regio.localeCompare(b.regio)),
+      bonus: [...bonus]
+    };
+  }
+
   const api = {
     DEPARTEMENTEN, BONUS, METRO, OUTRE_MER, BY_CODE, BONUS_BY_CODE,
-    normalize, gridRows, makeBingoCard, bingoStatus, randomCardCode, CARD_SIZES
+    normalize, gridRows, makeBingoCard, bingoStatus, randomCardCode, CARD_SIZES, MIX, frequentie, statistieken
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.DEP_GAME = api;

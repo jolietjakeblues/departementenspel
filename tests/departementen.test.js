@@ -53,3 +53,33 @@ test('bingoStatus vindt rijen, kolommen en diagonalen', () => {
   const rect = game.makeBingoCard('TEST', 12);
   assert.equal(game.bingoStatus(rect, new Set([0, 5, 10].map(i => rect.cells[i]))).lines.length, 0);
 });
+
+test('bingokaart volgt de mix van vaak, gemiddeld en zelden', () => {
+  for (const size of [12, 16, 20]) {
+    for (const code of ['AAAAAA', 'QWERTY', 'Z9Z9Z9']) {
+      const card = game.makeBingoCard(code, size);
+      const n = f => card.cells.filter(c => game.frequentie(c) === f).length;
+      assert.deepEqual([n('vaak'), n('gemiddeld'), n('zelden')], game.MIX[size]);
+      assert.equal(new Set(card.cells).size, size);
+    }
+  }
+});
+
+test('statistieken over meerdere reizen', () => {
+  const dag = 86400000;
+  const reizen = [
+    { start: 0, eind: 2 * dag, vondsten: { '13': 1, '75': 2 }, bonus: { TT: 1 } },
+    { start: 10 * dag, eind: 11 * dag, vondsten: { '75': 1, '2A': 2, '974': 3 }, bonus: {} }
+  ];
+  const s = game.statistieken(reizen);
+  assert.equal(s.reizen, 2);
+  assert.equal(s.totaalDagen, 3);
+  assert.equal(s.gemiddeld, 2.5);
+  assert.equal(s.beste.aantal, 3);
+  assert.equal(s.ooit, 4);
+  assert.equal(s.nooit.length, 97);
+  assert.deepEqual(s.vaakst[0], ['75', 2]);
+  assert.deepEqual(s.bonus, ['TT']);
+  assert.equal(s.regios.find(r => r.regio === 'Corse').ooit, 1);
+  assert.equal(game.statistieken([]).beste, null);
+});
