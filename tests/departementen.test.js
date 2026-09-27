@@ -83,3 +83,39 @@ test('statistieken over meerdere reizen', () => {
   assert.equal(s.regios.find(r => r.regio === 'Corse').ooit, 1);
   assert.equal(game.statistieken([]).beste, null);
 });
+
+test('klassement telt vondsten per speler, per reis en over reizen', () => {
+  const spelers = [{ id: 'a', naam: 'Anna' }, { id: 'b', naam: 'Bram' }];
+  const r1 = { vondsten: { '13': 1, '75': 2, '69': 3 }, bonus: { TT: 4 }, door: { '13': 'a', '75': 'b', '69': 'b', TT: 'a' } };
+  const r2 = { vondsten: { '33': 1 }, bonus: {}, door: { '33': 'a', '44': 'a' } };
+  assert.deepEqual(game.klassement(r1, spelers).map(s => [s.naam, s.aantal, s.bonus]), [['Bram', 2, 0], ['Anna', 1, 1]]);
+  // 44 staat wel in door maar is niet (meer) gevonden: telt niet mee.
+  assert.deepEqual(game.klassement([r1, r2], spelers).map(s => [s.naam, s.aantal]), [['Anna', 2], ['Bram', 2]]);
+  assert.deepEqual(game.klassement({ vondsten: {} }, []), []);
+});
+
+test('back-up: maken en weer inlezen geeft dezelfde gegevens', () => {
+  const state = {
+    reizen: [{ id: 'x', start: 1, eind: null, vondsten: { '13': 5 }, bonus: { TT: 6 }, door: { '13': 'a' } }],
+    spelers: [{ id: 'a', naam: 'Anna' }],
+    actiefId: 'x',
+    bingo: { code: 'ABC', size: 16, gemarkeerd: ['13'], geroepen: ['13', '75'] }
+  };
+  const terug = game.valideerBackup(JSON.parse(JSON.stringify(game.maakBackup(state, 99))));
+  assert.deepEqual(terug, state);
+});
+
+test('back-up: oude gegevens zonder spelers of door worden aangevuld', () => {
+  const terug = game.valideerBackup({ reizen: [{ id: 'x', start: 1, eind: 2, vondsten: { '13': 5 }, bonus: {} }], actiefId: 'x', bingo: { code: 'A', size: 16, gemarkeerd: [] } });
+  assert.deepEqual(terug.spelers, []);
+  assert.deepEqual(terug.reizen[0].door, {});
+  assert.equal(terug.actiefId, null); // reis is al afgelopen
+  assert.deepEqual(terug.bingo.geroepen, []);
+});
+
+test('back-up: verkeerde bestanden worden geweigerd', () => {
+  for (const fout of [null, [], 'tekst', {}, { reizen: 'x' }, { reizen: [{ id: 1 }] }, { app: 'departementenspel', data: null }]) {
+    assert.throws(() => game.valideerBackup(fout), /geen geldig back-upbestand/);
+  }
+  assert.equal(game.valideerBackup({ reizen: [], bingo: { code: 'A', size: 7 } }).bingo, null);
+});

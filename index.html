@@ -27,12 +27,17 @@
         <p class="groot">Rij je Frankrijk in?</p>
         <button id="btnStart" class="btn primary big">Start reis</button>
         <p class="muted">De reis stopt als je Frankrijk weer uit rijdt.</p>
+        <p class="muted klein-tekst">Speel je met meer mensen? Voeg onderaan spelers toe, dan zie je wie de meeste vindt.</p>
       </div>
 
       <div id="invoerBlok" class="card hidden">
         <div class="invoer-regel">
           <output id="invoer" class="invoer" aria-live="polite">&nbsp;</output>
           <div id="invoerNaam" class="invoer-naam muted">Toets het nummer van het kenteken</div>
+        </div>
+        <div id="spelerKeuze" class="speler-keuze hidden">
+          <div class="muted klein-tekst">Wie zag hem? Tik op de naam, of op Gevonden! als het niet uitmaakt.</div>
+          <div id="spelerKnoppen" class="speler-knoppen"></div>
         </div>
         <div class="keypad" id="keypad">
           <button>1</button><button>2</button><button>3</button><button>A</button>
@@ -45,6 +50,7 @@
       <div class="voortgang card">
         <div class="voortgang-tekst"><strong id="telling">0 / 101</strong> <span class="muted" id="tellingSub"></span></div>
         <div class="balk"><div id="balk" style="width:0%"></div></div>
+        <div id="miniKlassement" class="mini-klassement"></div>
       </div>
 
       <div id="tabel" class="tabel" aria-label="Alle departementen"></div>
@@ -55,6 +61,15 @@
       <div id="stopBlok" class="center hidden">
         <button id="btnStop" class="btn danger">Ik rij Frankrijk uit, stop reis</button>
       </div>
+
+      <details id="spelersBeheer" class="card spelers-beheer">
+        <summary><strong>Spelers</strong> <span id="spelersAantal" class="muted"></span></summary>
+        <ul id="spelersLijst" class="spelers-lijst"></ul>
+        <form id="spelerNieuw" class="speler-nieuw" autocomplete="off">
+          <input id="spelerNaam" maxlength="20" placeholder="Naam" aria-label="Naam van nieuwe speler">
+          <button class="btn primary" type="submit">Voeg toe</button>
+        </form>
+      </details>
     </section>
 
     <!-- KAART -->
@@ -102,6 +117,11 @@
           <div id="bingoGrid" class="bingo-grid"></div>
           <p class="muted klein-tekst">Tik op een vakje of vul het geroepen nummer in. Nog een keer tikken maakt het ongedaan.</p>
         </div>
+        <div class="card">
+          <h2>Geroepen nummers <span id="geroepenAantal" class="muted"></span></h2>
+          <p class="muted klein-tekst">Nieuwste eerst. Blauw = staat op jouw kaart. Handig om een bingo na te kijken.</p>
+          <div id="geroepen" class="codes"></div>
+        </div>
         <div class="center"><button id="btnBingoStop" class="btn">Andere kaart</button></div>
       </div>
     </section>
@@ -137,7 +157,12 @@
     </div>
   </div>
 
-  <div id="toast" class="toast hidden" role="status"></div>
+  <div id="toast" class="toast hidden" role="status"><span id="toastTekst"></span><button id="toastActie" class="toast-actie hidden"></button></div>
+
+  <div id="updateBalk" class="update-balk hidden" role="alert">
+    <span>Nieuwe versie beschikbaar</span>
+    <button id="btnUpdate" class="btn">Ververs</button>
+  </div>
 
   <script src="data.js"></script>
   <script src="game.js"></script>
