@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#002654">
+  <title>Handleiding · Departementenspel</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { padding-bottom: 32px; }
+    .handleiding h2 { font-size: 1.25rem; margin: 0 0 8px; }
+    .handleiding h3 { font-size: 1rem; margin: 14px 0 4px; }
+    .handleiding p, .handleiding li { line-height: 1.5; }
+    .handleiding ol, .handleiding ul { padding-left: 22px; margin: 6px 0; }
+    .handleiding .inhoud a { color: var(--bleu); }
+    .handleiding kbd { font: inherit; font-weight: 700; padding: 0 6px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); white-space: nowrap; }
+    .terug { color: #fff; text-decoration: none; font-weight: 600; border: 2px solid #fff; border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
+    .url { font-weight: 700; color: var(--bleu); overflow-wrap: anywhere; }
+    .tip { border-left: 4px solid var(--rouge); padding-left: 10px; }
+    @media (prefers-color-scheme: dark) { .handleiding .inhoud a { color: #8fb8ea; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Handleiding</h1>
+      <div class="ondertitel">Le mode d’emploi</div>
+    </div>
+    <a href="./" class="terug">← Naar het spel</a>
+  </header>
+
+  <main class="handleiding">
+    <div class="card">
+      <p><strong>Het departementenspel</strong>: op elk Frans kenteken staat rechts een nummer, het <em>departement</em>. Lees ze onderweg, toets ze in en probeer er zoveel mogelijk te vinden. Of speel bingo met het hele gezelschap.</p>
+      <ol class="inhoud">
+        <li><a href="#installeren">Installeren op je telefoon</a></li>
+        <li><a href="#reis">Een reis spelen</a></li>
+        <li><a href="#invoeren">Een nummer invoeren</a></li>
+        <li><a href="#spelers">Spelen met meer mensen</a></li>
+        <li><a href="#prijzen">Prijzen</a></li>
+        <li><a href="#kaart">De kaart</a></li>
+        <li><a href="#bingo">Bingo</a></li>
+        <li><a href="#statistiek">Statistiek</a></li>
+        <li><a href="#kentekens">Kentekens lezen</a></li>
+        <li><a href="#backup">Back-up en nieuwe telefoon</a></li>
+        <li><a href="#vragen">Vragen en tips</a></li>
+      </ol>
+    </div>
+
+    <section id="installeren" class="card">
+      <h2>1. Installeren op je telefoon</h2>
+      <p>De app komt niet uit een app store. Je zet hem vanuit de browser op je beginscherm.</p>
+      <h3>Android (Chrome)</h3>
+      <ol>
+        <li>Open <a class="url" href="https://jolietjakeblues.github.io/departementenspel/">jolietjakeblues.github.io/<wbr>departementenspel</a>.</li>
+        <li>Tik op het menu <kbd>⋮</kbd> rechtsboven.</li>
+        <li>Kies <strong>Toevoegen aan startscherm</strong> of <strong>App installeren</strong>.</li>
+      </ol>
+      <h3>iPhone (Safari)</h3>
+      <ol>
+        <li>Open dezelfde link in Safari.</li>
+        <li>Tik op de deelknop <kbd>⬆</kbd> onderin.</li>
+        <li>Kies <strong>Zet op beginscherm</strong>.</li>
+      </ol>
+      <p class="tip">Open de app thuis één keer met internet. Daarna werkt hij ook in Frankrijk zonder bereik of roaming.</p>
+    </section>
+
+    <section id="reis" class="card">
+      <h2>2. Een reis spelen</h2>
+      <ol>
+        <li>Rij je Frankrijk in, tik dan op <kbd>Start reis</kbd>.</li>
+        <li>Zie je een Frans kenteken, toets dan het nummer in (zie hieronder).</li>
+        <li>Rij je Frankrijk weer uit, tik dan onderaan het tabblad Spel op <kbd>Ik rij Frankrijk uit, stop reis</kbd>.</li>
+      </ol>
+      <p>Elke reis begint bij nul. Het doel: alle <strong>101 departementen</strong> vinden. Dat zijn 96 op het vasteland en Corsica, plus 5 overzee. Gevonden nummers kleuren blauw in de grote tabel. De tabel loopt in rijen van tien: 01–10, 11–19 met 2A en 2B, 21–30, enzovoort. Onderaan staat overzee.</p>
+      <p>Wat je eerder vond, blijft bewaard in de <a href="#statistiek">statistiek</a>.</p>
+    </section>
+
+    <section id="invoeren" class="card">
+      <h2>3. Een nummer invoeren</h2>
+      <ol>
+        <li>Toets het nummer in op het grote toetsenbord. Een 0 vooraan mag, maar hoeft niet: <kbd>1</kbd> wordt vanzelf 01. De naam van het departement verschijnt meteen, zodat je kunt controleren of het klopt.</li>
+        <li>Tik op <kbd>Gevonden!</kbd>. Of tik op de naam van wie hem zag, als je met <a href="#spelers">spelers</a> speelt.</li>
+      </ol>
+      <ul>
+        <li><strong>Corsica</strong> heeft geen 20, maar <kbd>2A</kbd> (Corse-du-Sud) en <kbd>2B</kbd> (Haute-Corse). Gebruik de toetsen A en B.</li>
+        <li><strong>Overzee</strong>: 971 Guadeloupe, 972 Martinique, 973 Guyane, 974 La Réunion en 976 Mayotte.</li>
+        <li><strong>Vertikt?</strong> Tik binnen 5 seconden op <kbd>Ongedaan</kbd> in de melding. Later kan het ook: tik het vakje in de tabel aan en kies <strong>Toch niet gevonden</strong>.</li>
+        <li><strong>Zeldzaam</strong>: bij een departement dat je weinig ziet, zoals 48 Lozère, krijg je een extra melding: <em>Rareté !</em></li>
+        <li><strong>Bijzondere vondsten</strong> tellen als bonus: een oude 20 van vóór 1976, overzeese gebieden zoals 988 Nouvelle-Calédonie, of een bijzondere plaat, zoals de rode TT, de groene diplomatenplaat of een zwarte oldtimerplaat. Toets het nummer in, of tik onder <em>Bijzondere vondsten</em> op de plaat en kies <strong>Markeer als gevonden</strong>.</li>
+      </ul>
+      <p>Tik op een vakje in de tabel voor informatie over dat departement: de naam, de prefectuur, de regio, een weetje en wie hem vond.</p>
+    </section>
+
+    <section id="spelers" class="card">
+      <h2>4. Spelen met meer mensen</h2>
+      <ol>
+        <li>Open onderaan het tabblad Spel <strong>Spelers</strong> en voeg de namen toe.</li>
+        <li>Onder het invoervak verschijnen knoppen met de namen. Toets het nummer in en tik op de naam van wie hem als eerste zag.</li>
+        <li>Onder de voortgangsbalk staat de stand. 🥇 staat voor wie voorstaat.</li>
+      </ol>
+      <p>Tik je <kbd>Gevonden!</kbd> in plaats van een naam, dan telt de vondst voor iedereen samen. Een departement telt maar één keer per reis. Toets je een nummer in dat al gevonden is, dan zegt de app wie hem al had.</p>
+      <p>Het volledige klassement, per reis en over alle reizen, staat op het tabblad <strong>Statistiek</strong>.</p>
+    </section>
+
+    <section id="prijzen" class="card">
+      <h2>5. Prijzen</h2>
+      <p>Tijdens een reis kun je prijzen winnen. Zodra je er een haalt, verschijnt er een 🏆 op het scherm.</p>
+      <ul>
+        <li><strong>Regioprijzen</strong>: alle departementen van één regio, bijvoorbeeld <em>Breizh !</em> voor heel Bretagne, <em>L’île de beauté</em> voor 2A en 2B, of <em>Outre-mer</em> voor alle vijf overzeese departementen.</li>
+        <li><strong>Petite couronne</strong>: Parijs en de drie departementen eromheen (75, 92, 93, 94).</li>
+        <li><strong>Chasseur de raretés</strong>: vijf zeldzame departementen.</li>
+        <li><strong>Mijlpalen</strong>: 10, 25, 50 en 75 departementen, <em>La France entière</em> (alle 96 op het vasteland) en de <em>Grand Chelem</em> (alle 101).</li>
+      </ul>
+      <p>Op <strong>Statistiek</strong> zie je alle prijzen: de behaalde in blauw, en bij de andere hoe ver je bent. Prijzen gelden per reis. Bij elke nieuwe reis kun je ze dus opnieuw winnen.</p>
+    </section>
+
+    <section id="kaart" class="card">
+      <h2>6. De kaart</h2>
+      <p>Op het tabblad <strong>Kaart</strong> kleuren de gevonden departementen blauw. Tik op een departement voor informatie. Onder de kaart staan de vijf overzeese departementen en een uitvergroting van Parijs met 92, 93 en 94, die op de grote kaart te klein zijn.</p>
+    </section>
+
+    <section id="bingo" class="card">
+      <h2>7. Bingo</h2>
+      <p>Een spel voor het hele gezelschap. Iedereen speelt op de eigen telefoon.</p>
+      <ol>
+        <li>Iedereen opent het tabblad <strong>Bingo</strong>, kiest hoeveel vakjes (12, 16 of 20) en tikt op <kbd>Maak kaart</kbd>.</li>
+        <li>Ziet iemand een kenteken, dan roept hij of zij het nummer.</li>
+        <li><strong>Iedereen</strong> die dat nummer op de kaart heeft, mag het afstrepen. Tik op het vakje, of vul het nummer in bij <em>Geroepen nummer</em>.</li>
+        <li>Een volle rij, kolom of diagonaal (alleen bij 16 vakjes) is <strong>BINGO !</strong> Speel je door tot de kaart vol is, dan is het <em>Carton plein</em>.</li>
+      </ol>
+      <ul>
+        <li>Alleen departementen van het vasteland en Corsica doen mee, geen overzee.</li>
+        <li>Elke kaart heeft een mix van vaak, gemiddeld en zelden geziene departementen. Zo blijft het spannend, maar duurt het niet eindeloos.</li>
+        <li>Vul je geroepen nummers in bij <em>Geroepen nummer</em>, dan staan ze in een lijst, ook als ze niet op jouw kaart staan. Zo kun je een bingo nakijken.</li>
+        <li>Elke kaart heeft een <strong>code</strong>, bovenaan. Via <em>Kaart met een code maken</em> haal je precies dezelfde kaart terug, bijvoorbeeld om hem na te kijken op een andere telefoon.</li>
+      </ul>
+    </section>
+
+    <section id="statistiek" class="card">
+      <h2>8. Statistiek</h2>
+      <p>Het tabblad <strong>Statistiek</strong> toont:</p>
+      <ul>
+        <li>de huidige of laatste reis: het aantal gevonden departementen, de duur, vondsten per uur, en de eerste en laatste vondst;</li>
+        <li>de prijzen en het klassement;</li>
+        <li>alle reizen samen: je record, het gemiddelde, de vaakst gevonden departementen, de voortgang per regio en welke departementen je nog nooit hebt gezien;</li>
+        <li>een lijst van al je reizen. Een oude reis kun je hier verwijderen.</li>
+      </ul>
+    </section>
+
+    <section id="kentekens" class="card">
+      <h2>9. Kentekens lezen</h2>
+      <p>Het nummer staat in het blauwe vak rechts op de plaat, onder het logo van de regio. Op het tabblad <strong>Kentekens</strong> staan voorbeelden van alle soorten platen, van de gewone witte tot de rode TT-plaat met datum.</p>
+      <p class="tip">Sinds 2009 kiest de eigenaar zelf welk departement er op de plaat staat. Een 29 hoeft dus niet uit Bretagne te komen. Op het spel heeft dat geen invloed: het nummer telt.</p>
+    </section>
+
+    <section id="backup" class="card">
+      <h2>10. Back-up en nieuwe telefoon</h2>
+      <p>Alles staat alleen op je eigen telefoon. Wis je de browsergegevens of neem je een nieuwe telefoon, dan ben je het kwijt, tenzij je een back-up hebt.</p>
+      <ol>
+        <li>Ga naar <strong>Statistiek → Back-up</strong> en tik op <kbd>Exporteer</kbd>.</li>
+        <li>Stuur het bestand naar jezelf, bijvoorbeeld via mail, Google Drive of WhatsApp.</li>
+        <li>Op de nieuwe telefoon: open de app, ga naar <strong>Statistiek → Back-up</strong>, tik op <kbd>Importeer</kbd> en kies het bestand.</li>
+      </ol>
+      <p>Let op: importeren vervangt wat er op die telefoon staat. De app vraagt eerst om bevestiging.</p>
+    </section>
+
+    <section id="vragen" class="card">
+      <h2>11. Vragen en tips</h2>
+      <h3>Werkt het zonder internet?</h3>
+      <p>Ja. Na de eerste keer openen met internet werkt alles offline.</p>
+      <h3>Ik zie “Nieuwe versie beschikbaar”</h3>
+      <p>Tik op <kbd>Ververs</kbd> als het je uitkomt. Je gegevens blijven gewoon staan.</p>
+      <h3>Tellen de telefoons van het gezelschap samen?</h3>
+      <p>Nee, elke telefoon houdt zijn eigen reis bij. Speel het departementenspel daarom op één telefoon en gebruik de spelersknoppen. Bij bingo heeft juist iedereen een eigen kaart.</p>
+      <h3>Ik ben een reis vergeten te stoppen</h3>
+      <p>Geen probleem: tik alsnog op <kbd>stop reis</kbd>. De duur loopt dan wel door tot dat moment.</p>
+      <h3>Een 20 gezien?</h3>
+      <p>Dat is een heel oud kenteken, van vóór 1976, toen Corsica nog één departement was. Het telt als bonusvondst.</p>
+    </section>
+
+    <p class="center"><a href="./" class="btn primary" style="text-decoration:none">Naar het spel</a></p>
+  </main>
+</body>
+</html>

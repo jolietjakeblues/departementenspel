@@ -119,3 +119,33 @@ test('back-up: verkeerde bestanden worden geweigerd', () => {
   }
   assert.equal(game.valideerBackup({ reizen: [], bingo: { code: 'A', size: 7 } }).bingo, null);
 });
+
+test('prijzen: regio compleet, extra prijzen en mijlpalen', () => {
+  const ids = game.PRIJZEN.map(p => p.id);
+  assert.equal(new Set(ids).size, ids.length);
+  // 13 regio's op het vasteland + Corsica, plus outre-mer
+  assert.equal(game.PRIJZEN.filter(p => p.soort === 'regio').length, 14);
+  const vind = codes => ({ vondsten: Object.fromEntries(codes.map((c, i) => [c, i + 1])) });
+  const bretagne = ['22', '29', '35', '56'];
+  const p = game.prijzen(vind(bretagne));
+  assert.equal(p.find(x => x.id === 'regio:Bretagne').behaald, true);
+  assert.equal(p.find(x => x.id === 'regio:Normandie').behaald, false);
+  assert.deepEqual([p.find(x => x.id === 'regio:Normandie').gevonden, p.find(x => x.id === 'regio:Normandie').nodig], [0, 5]);
+  assert.equal(p.find(x => x.id === 'regio:Corse').titel, 'L’île de beauté');
+  assert.equal(game.prijzen(vind(['75', '92', '93', '94'])).find(x => x.id === 'petite-couronne').behaald, true);
+  const zeldzaam = game.prijzen(vind(['48', '23', '05', '15', '09', '90']));
+  assert.deepEqual([zeldzaam.find(x => x.id === 'zelden').gevonden, zeldzaam.find(x => x.id === 'zelden').behaald], [5, true]);
+  const alles = game.prijzen(vind(game.DEPARTEMENTEN.map(d => d.code)));
+  assert.ok(alles.every(x => x.behaald));
+  assert.equal(game.prijzen(null).filter(x => x.behaald).length, 0);
+});
+
+test('nieuwePrijzen geeft alleen wat er net bij is gekomen', () => {
+  const voor = { vondsten: { '22': 1, '29': 2, '35': 3 } };
+  const na = { vondsten: { ...voor.vondsten, '56': 4 } };
+  assert.deepEqual(game.nieuwePrijzen(voor, na).map(p => p.id), ['regio:Bretagne']);
+  assert.deepEqual(game.nieuwePrijzen(na, na), []);
+  const negen = { vondsten: Object.fromEntries(game.METRO.slice(0, 9).map((d, i) => [d.code, i + 1])) };
+  const tien = { vondsten: { ...negen.vondsten, [game.METRO[9].code]: 10 } };
+  assert.ok(game.nieuwePrijzen(negen, tien).some(p => p.id === 'mijlpaal:10'));
+});

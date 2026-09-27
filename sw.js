@@ -1,8 +1,8 @@
 // Eenvoudige offline-cache: onderweg in Frankrijk is er niet altijd bereik.
 // Verhoog de versie bij elke wijziging aan de bestanden hieronder.
-const CACHE = 'departementenspel-v3';
+const CACHE = 'departementenspel-v4';
 const BESTANDEN = [
-  './', 'index.html', 'style.css', 'data.js', 'game.js', 'kentekens.js', 'app.js',
+  './', 'index.html', 'handleiding.html', 'style.css', 'data.js', 'game.js', 'kentekens.js', 'app.js',
   'departements.geojson', 'manifest.webmanifest', 'icon.svg'
 ];
 
