@@ -245,8 +245,42 @@ details { margin-top: 14px; }
 .codes span.op-kaart { background: var(--bleu); border-color: var(--bleu); color: #fff; }
 
 /* Melding met knop */
-.toast { display: flex; align-items: center; gap: 12px; }
+.toast { display: flex; align-items: center; gap: 12px; width: min(420px, calc(100% - 32px)); justify-content: center; }
+#toastTekst { flex: 1 1 auto; min-width: 0; }
 .toast-actie { font: inherit; font-weight: 700; border: 0; background: none; color: var(--rouge); cursor: pointer; padding: 4px 0; white-space: nowrap; text-decoration: underline; }
+
+/* Kop: help-knop */
+.kop-rechts { display: flex; align-items: center; gap: 10px; }
+.help-knop {
+  flex: none; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 700; text-decoration: none;
+}
+
+/* Prijzen */
+.prijzen { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.prijs { border-radius: 10px; padding: 10px; background: var(--bg); border: 1px solid var(--line); }
+.prijs .titel { font-family: var(--kop-font); font-weight: 700; }
+.prijs .uitleg { font-size: .75rem; color: var(--muted); margin: 2px 0 6px; }
+.prijs .balk { height: 6px; }
+.prijs .stand { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+.prijs.behaald { background: var(--bleu); border-color: var(--bleu); color: #fff; border-right: 6px solid var(--rouge); }
+.prijs.behaald .uitleg, .prijs.behaald .stand { color: #dfeaff; }
+.prijs.behaald .balk { display: none; }
+.meer-prijzen summary { cursor: pointer; color: var(--bleu); font-weight: 600; margin-bottom: 8px; }
+@media (prefers-color-scheme: dark) { .meer-prijzen summary { color: #8fb8ea; } }
+
+/* Viering */
+.viering { position: fixed; inset: 0; z-index: 30; background: rgba(0, 20, 60, .55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.viering-inner {
+  position: relative; background: var(--card); border-radius: 18px; padding: 26px 20px 20px; text-align: center; max-width: 360px; width: 100%;
+  border-top: 8px solid transparent; border-image: linear-gradient(90deg, var(--bleu) 0 33.33%, #fff 33.33% 66.66%, var(--rouge) 66.66%) 1;
+  animation: viering-in .45s cubic-bezier(.2, 1.4, .4, 1);
+}
+.viering-icoon { font-size: 3.4rem; line-height: 1; }
+.viering-kop { font-family: var(--kop-font); font-style: italic; color: var(--rouge); font-size: 1.2rem; margin-top: 6px; }
+.viering h2 { font-size: 1.5rem; margin: 6px 0; }
+@keyframes viering-in { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .viering-inner, .cel.nieuw { animation: none; } }
 
 /* Nieuwe versie */
 .update-balk {

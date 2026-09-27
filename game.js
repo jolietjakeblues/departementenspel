@@ -164,6 +164,59 @@
     return [...score.values()].sort((a, b) => b.aantal - a.aantal || b.bonus - a.bonus || a.naam.localeCompare(b.naam));
   }
 
+  // ---------- Prijzen ----------
+  // Prijzen gelden per reis. Een regioprijs haal je door alle departementen van die regio te vinden.
+  // Regio's met één departement (overzee) vallen samen onder "Outre-mer".
+  const REGIO_TITEL = {
+    'Auvergne-Rhône-Alpes': 'Des volcans aux Alpes',
+    'Bourgogne-Franche-Comté': 'Moutarde et comté',
+    'Bretagne': 'Breizh !',
+    'Centre-Val de Loire': 'Roi des châteaux',
+    'Corse': 'L’île de beauté',
+    'Grand Est': 'De Champagne en Alsace',
+    'Hauts-de-France': 'Ch’ti',
+    'Île-de-France': 'Parisien',
+    'Normandie': 'Camembert et calvados',
+    'Nouvelle-Aquitaine': 'Du Médoc au Pays basque',
+    'Occitanie': 'Soleil du Sud',
+    'Pays de la Loire': 'Au fil de la Loire',
+    "Provence-Alpes-Côte d'Azur": 'Lavande et Riviera'
+  };
+  const MIJLPALEN = [10, 25, 50, 75];
+
+  function prijsDefinities() {
+    const perRegio = new Map();
+    METRO.forEach(d => perRegio.set(d.regio, (perRegio.get(d.regio) || []).concat(d.code)));
+    const defs = [...perRegio.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([regio, codes]) => ({
+      id: 'regio:' + regio, soort: 'regio', titel: REGIO_TITEL[regio] || regio,
+      uitleg: `Alle ${codes.length} departementen van ${regio}`, codes
+    }));
+    defs.push({ id: 'outre-mer', soort: 'regio', titel: 'Outre-mer', uitleg: 'Alle 5 overzeese departementen', codes: OUTRE_MER.map(d => d.code) });
+    defs.push({ id: 'petite-couronne', soort: 'extra', titel: 'Petite couronne', uitleg: 'Parijs en de drie departementen eromheen (75, 92, 93, 94)', codes: ['75', '92', '93', '94'] });
+    defs.push({ id: 'zelden', soort: 'extra', titel: 'Chasseur de raretés', uitleg: 'Vijf zeldzame departementen, zoals 48 Lozère of 23 Creuse', minimaal: 5, codes: ZELDEN });
+    MIJLPALEN.forEach(n => defs.push({ id: 'mijlpaal:' + n, soort: 'mijlpaal', titel: `${n} départements`, uitleg: `${n} verschillende departementen in één reis`, minimaal: n, codes: DEPARTEMENTEN.map(d => d.code) }));
+    defs.push({ id: 'metropole', soort: 'mijlpaal', titel: 'La France entière', uitleg: 'Alle 96 departementen van het vasteland en Corsica', codes: METRO.map(d => d.code) });
+    defs.push({ id: 'alles', soort: 'mijlpaal', titel: 'Grand Chelem', uitleg: 'Alle 101 departementen, inclusief overzee', codes: DEPARTEMENTEN.map(d => d.code) });
+    return defs;
+  }
+  const PRIJZEN = prijsDefinities();
+
+  // Geeft per prijs of hij gehaald is en hoe ver je bent: [{ ...definitie, behaald, gevonden, nodig }].
+  function prijzen(reis) {
+    const gevonden = reis ? reis.vondsten || {} : {};
+    return PRIJZEN.map(p => {
+      const n = p.codes.filter(c => gevonden[c]).length;
+      const nodig = p.minimaal || p.codes.length;
+      return { ...p, gevonden: Math.min(n, nodig), nodig, behaald: n >= nodig };
+    });
+  }
+
+  // Welke prijzen zijn er bijgekomen tussen twee toestanden van een reis?
+  function nieuwePrijzen(voor, na) {
+    const had = new Set(prijzen(voor).filter(p => p.behaald).map(p => p.id));
+    return prijzen(na).filter(p => p.behaald && !had.has(p.id));
+  }
+
   // ---------- Back-up ----------
   const BACKUP_APP = 'departementenspel';
   function maakBackup(state, nu = Date.now()) {
@@ -212,7 +265,7 @@
   const api = {
     DEPARTEMENTEN, BONUS, METRO, OUTRE_MER, BY_CODE, BONUS_BY_CODE,
     normalize, gridRows, makeBingoCard, bingoStatus, randomCardCode, CARD_SIZES, MIX, frequentie, statistieken,
-    klassement, maakBackup, valideerBackup
+    klassement, maakBackup, valideerBackup, PRIJZEN, prijzen, nieuwePrijzen
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.DEP_GAME = api;

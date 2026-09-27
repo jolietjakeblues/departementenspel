@@ -106,12 +106,19 @@
       toast(`Déjà vu ! ${r.code} ${r.item.naam} had ${wie ? wie + ' al gevonden' : 'je al'}`);
       return;
     }
+    const voor = { vondsten: { ...reis.vondsten } };
     lijst[r.code] = Date.now();
     if (spelerId) reis.door[r.code] = spelerId;
     bewaar();
     const n = Object.keys(reis.vondsten).length;
     const wie = spelerId ? ` voor ${spelerNaam(spelerId)}` : '';
-    toast(r.type === 'bonus' ? `Formidable ! Bonus${wie}: ${r.item.naam}` : `Bravo${wie} ! ${r.code} ${r.item.naam} (${n}/${TOTAAL})`, {
+    const zeldzaam = r.type === 'dep' && G.frequentie(r.code) === 'zelden';
+    const tekst = r.type === 'bonus' ? `Formidable ! Bonus${wie}: ${r.item.naam}`
+      : zeldzaam ? `Rareté${wie} ! ${r.code} ${r.item.naam} zie je niet vaak (${n}/${TOTAAL})`
+      : `Bravo${wie} ! ${r.code} ${r.item.naam} (${n}/${TOTAAL})`;
+    if (zeldzaam && navigator.vibrate) navigator.vibrate([60, 40, 60]);
+    vier(G.nieuwePrijzen(voor, reis));
+    toast(tekst, {
       label: 'Ongedaan',
       fn: () => {
         delete lijst[r.code];
@@ -154,6 +161,25 @@
     buffer = '';
     toonBuffer();
   });
+
+  // ---------- Prijzen vieren ----------
+  const vieringRij = [];
+  function vier(nieuw) {
+    if (!nieuw.length) return;
+    vieringRij.push(...nieuw);
+    if ($('viering').classList.contains('hidden')) toonViering();
+  }
+  function toonViering() {
+    const p = vieringRij.shift();
+    if (!p) { $('viering').classList.add('hidden'); return; }
+    $('vieringTitel').textContent = p.titel;
+    $('vieringUitleg').textContent = p.uitleg;
+    $('vieringMeer').textContent = vieringRij.length ? `Nog ${vieringRij.length} ${vieringRij.length === 1 ? 'prijs' : 'prijzen'}!` : '';
+    $('viering').classList.remove('hidden');
+    if (navigator.vibrate) navigator.vibrate([120, 60, 120, 60, 240]);
+  }
+  $('vieringOk').addEventListener('click', toonViering);
+  $('viering').addEventListener('click', e => { if (e.target.id === 'viering') toonViering(); });
 
   // ---------- Spelers ----------
   function renderSpelers() {
@@ -213,7 +239,9 @@
     const n = Object.keys(gevonden).length;
     $('telling').textContent = `${n} / ${TOTAAL}`;
     $('balk').style.width = (100 * n / TOTAAL) + '%';
-    $('tellingSub').textContent = !reis ? 'nog geen reis gestart' : (actief ? 'deze reis' : 'laatste reis');
+    const aantalPrijzen = reis ? G.prijzen(reis).filter(p => p.behaald).length : 0;
+    $('tellingSub').textContent = !reis ? 'nog geen reis gestart'
+      : (actief ? 'deze reis' : 'laatste reis') + (aantalPrijzen ? ` · 🏆 ${aantalPrijzen}` : '');
     $('reisStatus').textContent = actief ? `Onderweg sinds ${fmtTijd(actieveReis().start)}` : 'Geen reis actief';
     const mini = $('miniKlassement');
     mini.textContent = '';
@@ -284,7 +312,10 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') sluitSheet(); });
   $('sheetToggle').addEventListener('click', () => {
     const r = G.normalize(sheetCode);
+    const reis = actieveReis();
+    const voor = reis ? { vondsten: { ...reis.vondsten } } : null;
     const aan = vondstToggle(r.code, r.type === 'bonus' ? 'bonus' : 'dep');
+    if (aan && reis) vier(G.nieuwePrijzen(voor, reis));
     toast(aan ? `Bravo ! ${r.item.naam} gevonden` : `${r.item.naam} weer weggehaald`);
     sluitSheet();
     render(aan ? r.code : null);
@@ -557,6 +588,39 @@
         `Eerste: ${c0} ${G.BY_CODE.get(c0).naam} (${fmtTijd(t0)}). Laatste: ${cN} ${G.BY_CODE.get(cN).naam} (${fmtTijd(tN)}).`));
     }
     root.appendChild(c1);
+
+    // Prijzen
+    const lijstPrijzen = G.prijzen(reis);
+    const behaald = lijstPrijzen.filter(p => p.behaald).length;
+    const ooit = new Set();
+    state.reizen.forEach(rs => G.prijzen(rs).forEach(p => { if (p.behaald) ooit.add(p.id); }));
+    const cp = kaartje(`Prijzen ${actieveReis() ? 'deze reis' : 'laatste reis'}: ${behaald} / ${lijstPrijzen.length}`);
+    if (state.reizen.length > 1) cp.appendChild(el('p', { class: 'muted klein-tekst' }, `Over alle reizen ooit behaald: ${ooit.size} / ${lijstPrijzen.length}`));
+    // Behaalde prijzen eerst, daarna de vier waar je het dichtst bij zit; de rest achter "Toon alle".
+    const gesorteerd = lijstPrijzen.slice().sort((a, b) => b.behaald - a.behaald || b.gevonden / b.nodig - a.gevonden / a.nodig);
+    const zichtbaar = behaald + 4;
+    const grid = el('div', { class: 'prijzen' });
+    const rest = el('div', { class: 'prijzen' });
+    gesorteerd.forEach((p, i) => {
+      const d = el('div', { class: 'prijs' + (p.behaald ? ' behaald' : '') });
+      d.appendChild(el('div', { class: 'titel' }, (p.behaald ? '🏆 ' : '') + p.titel));
+      d.appendChild(el('div', { class: 'uitleg' }, p.uitleg));
+      const b = el('div', { class: 'balk' });
+      const vul = el('div');
+      vul.style.width = (100 * p.gevonden / p.nodig) + '%';
+      b.appendChild(vul);
+      d.appendChild(b);
+      d.appendChild(el('div', { class: 'stand' }, p.behaald ? 'Behaald !' : `${p.gevonden} / ${p.nodig}`));
+      (i < zichtbaar ? grid : rest).appendChild(d);
+    });
+    cp.appendChild(grid);
+    if (rest.children.length) {
+      const meer = el('details', { class: 'meer-prijzen' });
+      meer.appendChild(el('summary', {}, `Toon alle ${lijstPrijzen.length} prijzen`));
+      meer.appendChild(rest);
+      cp.appendChild(meer);
+    }
+    root.appendChild(cp);
 
     // Klassement
     if (state.spelers.length) {

@@ -16,7 +16,10 @@
       <h1>Departementenspel</h1>
       <div class="ondertitel">Le jeu des départements</div>
     </div>
-    <div id="reisStatus" class="reis-status"></div>
+    <div class="kop-rechts">
+      <div id="reisStatus" class="reis-status"></div>
+      <a href="handleiding.html" class="help-knop" aria-label="Handleiding" title="Handleiding">?</a>
+    </div>
   </header>
 
   <main class="na-kop">
@@ -154,6 +157,17 @@
       <p id="sheetTekst"></p>
       <p id="sheetGevonden" class="muted"></p>
       <button id="sheetToggle" class="btn primary"></button>
+    </div>
+  </div>
+
+  <div id="viering" class="viering hidden" role="dialog" aria-modal="true" aria-labelledby="vieringTitel">
+    <div class="viering-inner">
+      <div class="viering-icoon" aria-hidden="true">🏆</div>
+      <div class="viering-kop">Prix gagné !</div>
+      <h2 id="vieringTitel"></h2>
+      <p id="vieringUitleg"></p>
+      <p id="vieringMeer" class="muted klein-tekst"></p>
+      <button id="vieringOk" class="btn primary big">Super !</button>
     </div>
   </div>
 
