@@ -12,6 +12,20 @@
   </div>
 
   <div class="card">
+    <h2>Motoren, scooters en brommers</h2>
+    <span class="plaat moto"><span class="eu">★<br>F</span><span class="tekst">AB-123<br>CD</span><span class="dep">▲<b>13</b></span></span>
+    <p class="muted klein-tekst">Schematisch voorbeeld.</p>
+    <p>Dit werkt hetzelfde als bij een auto: hetzelfde soort nummer, en rechts het <strong>departementnummer</strong>. Het verschil is dat een tweewieler alleen <strong>achterop</strong> een plaat heeft. Die is kleiner (21 × 13 cm), met het nummer over twee regels. Sinds juli 2017 geldt dit ene formaat voor motoren, scooters, quads en driewielers. Sinds 2015 krijgen ook brommers (50 cc) een gewoon kenteken uit dezelfde reeks.</p>
+    <p>Tip: je leest ze het best als je achter de motor rijdt of hem inhaalt.</p>
+  </div>
+
+  <div class="card">
+    <h2>Aanhangers, caravans en opleggers</h2>
+    <p>Een aanhanger of caravan van <strong>meer dan 500 kg</strong> heeft een eigen kenteken. Dat geldt ook voor de oplegger van een vrachtwagen. Het departement kan dus anders zijn dan dat van de auto of trekker ervoor. Een <strong>lichte aanhanger</strong> (tot 500 kg) draagt een kopie van het kenteken van de auto die hem trekt.</p>
+    <p>Volgens de <a href="handleiding.html#regels">standaard spelregels</a> tellen aanhangers, caravans en opleggers niet mee: alleen het voertuig zelf telt.</p>
+  </div>
+
+  <div class="card">
     <h2>Het oude kenteken (FNI, 1950 tot 2009)</h2>
     <span class="plaat"><span class="tekst">1234 AB 56</span></span>
     <span class="plaat geel"><span class="tekst">1234 AB 56</span></span>

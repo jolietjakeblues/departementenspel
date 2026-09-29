@@ -19,6 +19,7 @@
     .handleiding kbd { font: inherit; font-weight: 700; padding: 0 6px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); white-space: nowrap; }
     .terug { color: #fff; text-decoration: none; font-weight: 600; border: 2px solid #fff; border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
     .url { font-weight: 700; color: var(--bleu); overflow-wrap: anywhere; }
+    .handleiding section { scroll-margin-top: calc(90px + env(safe-area-inset-top)); }
     .tip { border-left: 4px solid var(--rouge); padding-left: 10px; }
     @media (prefers-color-scheme: dark) { .handleiding .inhoud a { color: #8fb8ea; } }
   </style>
@@ -38,6 +39,7 @@
       <ol class="inhoud">
         <li><a href="#installeren">Installeren op je telefoon</a></li>
         <li><a href="#reis">Een reis spelen</a></li>
+        <li><a href="#regels">Spelregels</a></li>
         <li><a href="#invoeren">Een nummer invoeren</a></li>
         <li><a href="#spelers">Spelen met meer mensen</a></li>
         <li><a href="#prijzen">Prijzen</a></li>
@@ -77,10 +79,32 @@
       </ol>
       <p>Elke reis begint bij nul. Het doel: alle <strong>101 departementen</strong> vinden. Dat zijn 96 op het vasteland en Corsica, plus 5 overzee. Gevonden nummers kleuren blauw in de grote tabel. De tabel loopt in rijen van tien: 01–10, 11–19 met 2A en 2B, 21–30, enzovoort. Onderaan staat overzee.</p>
       <p>Wat je eerder vond, blijft bewaard in de <a href="#statistiek">statistiek</a>.</p>
+      <p>Welke kentekens meetellen, lees je bij de <a href="#regels">spelregels</a>.</p>
+    </section>
+
+    <section id="regels" class="card">
+      <h2>3. Spelregels</h2>
+      <p>De app telt alles wat je intoetst. Wat meetelt, spreek je vóór vertrek samen af. Dit zijn de <strong>standaardregels</strong>, die maken het spel eerlijk en spannend:</p>
+      <ol>
+        <li><strong>Alleen op de autoroute.</strong> Kentekens tellen alleen op de snelweg. Niet in dorpen en steden, en niet op een aire of parkeerplaats. Daar sta je anders in vijf minuten naast dertig departementen.</li>
+        <li><strong>Alleen rijdende voertuigen.</strong> Het voertuig moet op de weg rijden. Geparkeerde auto's tellen niet, en auto's op een parkeerplaats langs de weg ook niet. In de file staan telt wel: dat is gewoon verkeer.</li>
+        <li><strong>Geen aanhangers, caravans en opleggers.</strong> Alleen de plaat van het voertuig zelf telt: de auto, camper, bus, motor, of bij een vrachtwagen de trekker. Een oplegger, caravan of zwaardere aanhanger (meer dan 500 kg) heeft een <em>eigen</em> kenteken, met vaak een ander departement dan de trekker. Een lichte aanhanger draagt het nummer van de auto ervoor; die telt dus al.</li>
+        <li><strong>Motoren tellen mee.</strong> Ook op een motor, scooter of brommer staat het departement. Ze hebben alleen een kleine plaat achterop, dus je moet er wel achter zitten of ze inhalen.</li>
+        <li><strong>Echt gelezen.</strong> Je moet het nummer zelf goed gelezen hebben. Gokken of "volgens mij was het een 33" telt niet. Bij twijfel beslist een tweede speler.</li>
+        <li><strong>Wie het eerst roept.</strong> Speel je met <a href="#spelers">spelers</a>, dan krijgt wie het nummer als eerste hardop roept het punt.</li>
+        <li><strong>De bestuurder rijdt.</strong> De bestuurder let op de weg en bedient de app niet. Roepen mag natuurlijk wel, als het veilig kan.</li>
+      </ol>
+      <h3>Varianten</h3>
+      <ul>
+        <li><strong>Losser</strong>, voor korte ritten of kleine kinderen: ook op rustplaatsen en in de stad.</li>
+        <li><strong>Strenger</strong>, voor fanatiekelingen: alleen tegenliggers op de andere rijbaan. Die heb je maar een seconde om te lezen.</li>
+        <li><strong>Bingo</strong>: dezelfde regels, en een geroepen nummer telt voor iedereen die het op de kaart heeft.</li>
+      </ul>
+      <p class="tip">Bijzondere platen, zoals een rode TT of een groene diplomatenplaat, tellen als bonus volgens dezelfde regels.</p>
     </section>
 
     <section id="invoeren" class="card">
-      <h2>3. Een nummer invoeren</h2>
+      <h2>4. Een nummer invoeren</h2>
       <ol>
         <li>Toets het nummer in op het grote toetsenbord. Een 0 vooraan mag, maar hoeft niet: <kbd>1</kbd> wordt vanzelf 01. De naam van het departement verschijnt meteen, zodat je kunt controleren of het klopt.</li>
         <li>Tik op <kbd>Gevonden!</kbd>. Of tik op de naam van wie hem zag, als je met <a href="#spelers">spelers</a> speelt.</li>
@@ -96,7 +120,7 @@
     </section>
 
     <section id="spelers" class="card">
-      <h2>4. Spelen met meer mensen</h2>
+      <h2>5. Spelen met meer mensen</h2>
       <ol>
         <li>Open onderaan het tabblad Spel <strong>Spelers</strong> en voeg de namen toe.</li>
         <li>Onder het invoervak verschijnen knoppen met de namen. Toets het nummer in en tik op de naam van wie hem als eerste zag.</li>
@@ -107,7 +131,7 @@
     </section>
 
     <section id="prijzen" class="card">
-      <h2>5. Prijzen</h2>
+      <h2>6. Prijzen</h2>
       <p>Tijdens een reis kun je prijzen winnen. Zodra je er een haalt, verschijnt er een 🏆 op het scherm.</p>
       <ul>
         <li><strong>Regioprijzen</strong>: alle departementen van één regio, bijvoorbeeld <em>Breizh !</em> voor heel Bretagne, <em>L’île de beauté</em> voor 2A en 2B, of <em>Outre-mer</em> voor alle vijf overzeese departementen.</li>
@@ -119,12 +143,12 @@
     </section>
 
     <section id="kaart" class="card">
-      <h2>6. De kaart</h2>
+      <h2>7. De kaart</h2>
       <p>Op het tabblad <strong>Kaart</strong> kleuren de gevonden departementen blauw. Tik op een departement voor informatie. Onder de kaart staan de vijf overzeese departementen en een uitvergroting van Parijs met 92, 93 en 94, die op de grote kaart te klein zijn.</p>
     </section>
 
     <section id="bingo" class="card">
-      <h2>7. Bingo</h2>
+      <h2>8. Bingo</h2>
       <p>Een spel voor het hele gezelschap. Iedereen speelt op de eigen telefoon.</p>
       <ol>
         <li>Iedereen opent het tabblad <strong>Bingo</strong>, kiest hoeveel vakjes (12, 16 of 20) en tikt op <kbd>Maak kaart</kbd>.</li>
@@ -141,7 +165,7 @@
     </section>
 
     <section id="statistiek" class="card">
-      <h2>8. Statistiek</h2>
+      <h2>9. Statistiek</h2>
       <p>Het tabblad <strong>Statistiek</strong> toont:</p>
       <ul>
         <li>de huidige of laatste reis: het aantal gevonden departementen, de duur, vondsten per uur, en de eerste en laatste vondst;</li>
@@ -152,13 +176,13 @@
     </section>
 
     <section id="kentekens" class="card">
-      <h2>9. Kentekens lezen</h2>
-      <p>Het nummer staat in het blauwe vak rechts op de plaat, onder het logo van de regio. Op het tabblad <strong>Kentekens</strong> staan voorbeelden van alle soorten platen, van de gewone witte tot de rode TT-plaat met datum.</p>
+      <h2>10. Kentekens lezen</h2>
+      <p>Het nummer staat in het blauwe vak rechts op de plaat, onder het logo van de regio. Op motoren, scooters en brommers zit alleen achterop een kleinere plaat, met het nummer over twee regels. Het departement staat er net zo op. Op het tabblad <strong>Kentekens</strong> staan voorbeelden van alle soorten platen, van de gewone witte tot de rode TT-plaat met datum.</p>
       <p class="tip">Sinds 2009 kiest de eigenaar zelf welk departement er op de plaat staat. Een 29 hoeft dus niet uit Bretagne te komen. Op het spel heeft dat geen invloed: het nummer telt.</p>
     </section>
 
     <section id="backup" class="card">
-      <h2>10. Back-up en nieuwe telefoon</h2>
+      <h2>11. Back-up en nieuwe telefoon</h2>
       <p>Alles staat alleen op je eigen telefoon. Wis je de browsergegevens of neem je een nieuwe telefoon, dan ben je het kwijt, tenzij je een back-up hebt.</p>
       <ol>
         <li>Ga naar <strong>Statistiek → Back-up</strong> en tik op <kbd>Exporteer</kbd>.</li>
@@ -169,7 +193,11 @@
     </section>
 
     <section id="vragen" class="card">
-      <h2>11. Vragen en tips</h2>
+      <h2>12. Vragen en tips</h2>
+      <h3>Tellen motoren mee?</h3>
+      <p>Ja, standaard wel: hun plaat heeft ook een departement. Zie de <a href="#regels">spelregels</a>.</p>
+      <h3>En de oplegger van een vrachtwagen?</h3>
+      <p>Die telt niet: een oplegger heeft een eigen kenteken, los van de trekker. Alleen de plaat van de trekker telt.</p>
       <h3>Werkt het zonder internet?</h3>
       <p>Ja. Na de eerste keer openen met internet werkt alles offline.</p>
       <h3>Ik zie “Nieuwe versie beschikbaar”</h3>
