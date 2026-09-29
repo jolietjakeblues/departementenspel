@@ -22,7 +22,7 @@
   <div class="card">
     <h2>Aanhangers, caravans en opleggers</h2>
     <p>Een aanhanger of caravan van <strong>meer dan 500 kg</strong> heeft een eigen kenteken. Dat geldt ook voor de oplegger van een vrachtwagen. Het departement kan dus anders zijn dan dat van de auto of trekker ervoor. Een <strong>lichte aanhanger</strong> (tot 500 kg) draagt een kopie van het kenteken van de auto die hem trekt.</p>
-    <p>Of ze meetellen, spreek je zelf af. Laat je ze weg, dan wordt het spel moeilijker. Zie <a href="handleiding.html#moeilijkheid">makkelijker of moeilijker</a> in de handleiding.</p>
+    <p>Volgens de <a href="handleiding.html#regels">standaard spelregels</a> tellen aanhangers, caravans en opleggers niet mee: alleen het voertuig zelf telt.</p>
   </div>
 
   <div class="card">
